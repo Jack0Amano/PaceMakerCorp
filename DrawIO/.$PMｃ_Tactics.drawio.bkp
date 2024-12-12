@@ -1,0 +1,43 @@
+<mxfile host="Electron" modified="2024-03-28T05:37:34.627Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.1.0 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="BjJu7aet2ZJkQW61HYPM" version="24.1.0" type="device">
+  <diagram name="ページ1" id="sCDpSftJdvc8JZTHM6sW">
+    <mxGraphModel dx="2202" dy="1648" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-1" value="&lt;h3&gt;[serializable] MapSquads.ReachedEventArgs&lt;/h3&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="280" width="400" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-2" value="MapLocationにMapSquadが到着したときのArgs&lt;div&gt;SaveDataInfoにencounterのデータとしてtacticsから始める際のデータとして保存されている&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="30" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-3" value="PlayerSquadID&amp;nbsp; 到着したplayerID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="90" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-4" value="MapLocationID&amp;nbsp; 到着したMapLocationのID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="120" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-5" value="ReachedDateTime&amp;nbsp; 到着した時刻" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="150" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-6" value="SpawnREquestData&amp;nbsp; エンカウントした場合の敵データ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="180" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-7" value="TacticsSceneID&amp;nbsp; initでlocation.DefaultかSpecificTacticsIDか決定" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="210" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-8" value="ReachedAtLocation　指定した場所に到着したならtrue、経由ならfalse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="240" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-9" value="&lt;h5&gt;Getter and Setter&lt;/h5&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="270" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-10" value="Squad Player&amp;nbsp; PlayerSquadIDからSquadのデータを取得する" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="300" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="z-c96MHRl6IHbRlYh6S7-11" value="SpawnSquadData&amp;nbsp; Enemy&amp;nbsp;&lt;div&gt;エンカウントした敵軍をSpawnRequestDataのIDとlevel, GameLevelから実データを取得する&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="z-c96MHRl6IHbRlYh6S7-1">
+          <mxGeometry y="330" width="400" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

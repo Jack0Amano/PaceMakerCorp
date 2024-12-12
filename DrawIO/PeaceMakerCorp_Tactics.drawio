@@ -1,0 +1,195 @@
+<mxfile host="Electron" modified="2024-02-25T05:30:24.170Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.1.5 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="J9L4iHH-5ZYeUNP_JKVZ" version="23.1.5" type="device">
+  <diagram name="ページ1" id="v7MIHx-x15Hkn85eE5Pn">
+    <mxGraphModel dx="2325" dy="2073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-1" target="Ys3rnDNPJow3rD2v_wVe-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;shape=link;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-1" target="Ys3rnDNPJow3rD2v_wVe-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;shape=link;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-1" target="Ys3rnDNPJow3rD2v_wVe-11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;shape=link;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-1" target="Ys3rnDNPJow3rD2v_wVe-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.519;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-1" target="Ys3rnDNPJow3rD2v_wVe-8" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="810" y="190" />
+              <mxPoint x="460" y="190" />
+            </Array>
+            <mxPoint x="460" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-1" target="Ys3rnDNPJow3rD2v_wVe-16" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-1" value="&lt;h1&gt;GameManager&lt;/h1&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a20025;fontColor=#ffffff;strokeColor=#6F0000;" parent="1" vertex="1">
+          <mxGeometry x="680" y="65" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-2" value="&lt;h2&gt;UserController&lt;/h2&gt;&lt;div&gt;Staticなアクセスを各Controllerから&lt;/div&gt;&lt;div&gt;gameManagerを通して行われる&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="50" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-4" value="&lt;h2&gt;GeneralParameter&lt;/h2&gt;&lt;div&gt;一般的なパラメーターを&lt;/div&gt;&lt;div&gt;gameManagerを通して取得される&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="155" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-8" target="Ys3rnDNPJow3rD2v_wVe-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-8" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;StartCanvasController&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;Start時やSettingなどEscを押して行われる&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;ゲームシステムの操作に置いて使われる&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" parent="1" vertex="1">
+          <mxGeometry x="325" y="230" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-9" value="&lt;h3&gt;DataPanel&lt;/h3&gt;&lt;div&gt;OSAを内包しデータのUI操作を行う&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="225" y="360" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-11" value="&lt;h2&gt;EventSceneController&lt;/h2&gt;&lt;div&gt;イベントは割り込み型であるため&lt;/div&gt;&lt;div&gt;各ControllerからGameManagerを通し&lt;/div&gt;&lt;div&gt;RunEventIfNeededされる&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="260" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-13" value="&lt;h2&gt;FadeInOutCanvas&lt;/h2&gt;&lt;div&gt;各種目隠し的に画面を暗転させる&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="400" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-16" target="Z1zuox1sKP6LtD8Uy89l-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-16" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;TacticsController&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;Tacticsのすべてを書き込むコントローラー&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" parent="1" vertex="1">
+          <mxGeometry x="675" y="430" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-18" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;CameraUserController&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;Tactics中のCameraの動きを&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;一括コントロールする&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" parent="1" vertex="1">
+          <mxGeometry x="20" y="1590" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Ys3rnDNPJow3rD2v_wVe-19" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;TilesController&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;TacticsのTileを管理&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" parent="1" vertex="1">
+          <mxGeometry x="1140" y="730" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-1" target="Z1zuox1sKP6LtD8Uy89l-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.559;entryY=0.038;entryDx=0;entryDy=0;entryPerimeter=0;shape=link;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-1" target="SDI4HcLA7KSy1gv5SHDo-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340.0000000000002" y="1020" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-1" target="SDI4HcLA7KSy1gv5SHDo-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-1" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;UnitsController&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;すべてのUnitの一括管理&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" parent="1" vertex="1">
+          <mxGeometry x="490" y="790" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-2" target="Z1zuox1sKP6LtD8Uy89l-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-2" value="&lt;h3&gt;Load&lt;/h3&gt;&lt;div&gt;UnitとTileのLoad&lt;/div&gt;&lt;div&gt;PreparePanelからStartGameが呼び出されるまでこの関数内で待つ&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="830" y="580" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-4" target="Z1zuox1sKP6LtD8Uy89l-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-4" target="Z1zuox1sKP6LtD8Uy89l-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-4" value="&lt;h3&gt;FirstTurn&lt;/h3&gt;&lt;div&gt;UnitとTileのLoad&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="910" y="770" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-6" target="Z1zuox1sKP6LtD8Uy89l-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-6" value="&lt;h3&gt;&lt;font color=&quot;#ffffff&quot;&gt;FirstTurn&lt;/font&gt;&lt;/h3&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;最初のターンを開始する&lt;/font&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="745" y="940" width="175" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;shape=link;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-9" target="Ys3rnDNPJow3rD2v_wVe-19" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-9" value="&lt;h3&gt;&lt;font color=&quot;#ffffff&quot;&gt;StartTurn&lt;/font&gt;&lt;/h3&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;ActiveUnitのTileを移動可能にする&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="940" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-13" target="SDI4HcLA7KSy1gv5SHDo-11" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="592.5" y="1170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-13" value="&lt;h3&gt;&lt;font color=&quot;#ffffff&quot;&gt;ActiveControl&lt;/font&gt;&lt;/h3&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;指定UnitのControllをActiveにする&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="490" y="1010" width="205" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Z1zuox1sKP6LtD8Uy89l-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.686;entryY=0.013;entryDx=0;entryDy=0;entryPerimeter=0;shape=link;" parent="1" source="Z1zuox1sKP6LtD8Uy89l-1" target="Z1zuox1sKP6LtD8Uy89l-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-2" value="&lt;h3&gt;DisactiveControl&lt;/h3&gt;&lt;div&gt;指定UnitのControlをDisactiveにする&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="205" y="1010" width="230" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-3" value="&lt;h3&gt;ChangeModeStationaryAtNear&lt;br&gt;&lt;/h3&gt;&lt;div&gt;ActiveTurnが&lt;span style=&quot;background-color: initial;&quot;&gt;NPCなら近いPlayerから見たようなStationaryCameraになる&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="270" y="1460" width="270" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-4" value="&lt;h3&gt;ChangeModeFollowTarget&lt;br&gt;&lt;/h3&gt;&lt;div&gt;TPSカメラ風のカメラ移動に変更する&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="575" y="1540" width="270" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;shape=link;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-18" target="SDI4HcLA7KSy1gv5SHDo-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="Ys3rnDNPJow3rD2v_wVe-18" target="SDI4HcLA7KSy1gv5SHDo-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="726" y="1697.6" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-7" value="&lt;h3&gt;StartGimmickMode&lt;/h3&gt;&lt;div&gt;Gimmickを使用している状態に移行&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="50" y="1150" width="230" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="SDI4HcLA7KSy1gv5SHDo-11" target="SDI4HcLA7KSy1gv5SHDo-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-15" value="True" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="SDI4HcLA7KSy1gv5SHDo-13" vertex="1" connectable="0">
+          <mxGeometry x="0.6365" y="1" relative="1" as="geometry">
+            <mxPoint x="-1" y="20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="SDI4HcLA7KSy1gv5SHDo-11" target="SDI4HcLA7KSy1gv5SHDo-17" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-16" value="False" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="SDI4HcLA7KSy1gv5SHDo-14" vertex="1" connectable="0">
+          <mxGeometry x="0.6846" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-11" value="Unit.IsAIControlled" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="518.75" y="1160" width="147.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="SDI4HcLA7KSy1gv5SHDo-17" target="SDI4HcLA7KSy1gv5SHDo-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-21" value="True" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="SDI4HcLA7KSy1gv5SHDo-18" vertex="1" connectable="0">
+          <mxGeometry x="-0.7423" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="SDI4HcLA7KSy1gv5SHDo-17" target="SDI4HcLA7KSy1gv5SHDo-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-23" value="False" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="SDI4HcLA7KSy1gv5SHDo-22" vertex="1" connectable="0">
+          <mxGeometry x="-0.057" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-17" value="Unit.IsUsingGimmickObject" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="610" y="1340" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SDI4HcLA7KSy1gv5SHDo-24" value="target.GimmickObjectに使用中もしくは&lt;br&gt;近い位置のGimmickObjectが入っている" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="180" y="1240" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ObaUl3U2KpJJkPjaWc5R-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ObaUl3U2KpJJkPjaWc5R-1" target="Z1zuox1sKP6LtD8Uy89l-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ObaUl3U2KpJJkPjaWc5R-1" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;PreparePanel&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;Unitの出撃位置等を選ぶTacticsTabletのUI&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" vertex="1" parent="1">
+          <mxGeometry x="205" y="640" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ObaUl3U2KpJJkPjaWc5R-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=link;" edge="1" parent="1" source="ObaUl3U2KpJJkPjaWc5R-3" target="ObaUl3U2KpJJkPjaWc5R-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ObaUl3U2KpJJkPjaWc5R-3" value="&lt;h2&gt;&lt;font color=&quot;#ffffff&quot;&gt;TacticsTablet&lt;/font&gt;&lt;/h2&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;Tactics内でEscを押して行われる&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#ffffff&quot;&gt;ゲームシステムの操作に置いて使われる&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" vertex="1" parent="1">
+          <mxGeometry x="205" y="520" width="260" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

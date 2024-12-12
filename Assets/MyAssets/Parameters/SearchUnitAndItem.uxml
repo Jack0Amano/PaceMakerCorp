@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; flex-direction: row; height: 20px; max-height: 20px; min-height: 20px; padding-top: 0; padding-bottom: 0; margin-top: 5px; margin-bottom: 5px; justify-content: flex-end;">
+        <ui:Label tabindex="-1" text="Search Unit" parse-escape-sequences="true" display-tooltip-when-elided="true" style="height: 20px; justify-content: center; -unity-text-align: middle-left;" />
+        <ui:TextField picking-mode="Ignore" name="SearchUnitTextField" style="width: 207px; height: 20px; align-items: auto; flex-direction: column-reverse; max-height: 20px; min-height: 20px;" />
+        <ui:Button text="Seach" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Button" style="width: 72px; height: 30px; white-space: nowrap; -unity-text-align: middle-center; max-height: 20px; min-height: 20px;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="Unit" style="flex-grow: 1; height: 219px; max-height: 200px; min-height: 200px; -unity-text-outline-width: 0; -unity-text-outline-color: rgba(255, 255, 255, 0); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(45, 45, 45); border-right-color: rgb(45, 45, 45); border-top-color: rgb(45, 45, 45); border-bottom-color: rgb(45, 45, 45);" />
+</ui:UXML>

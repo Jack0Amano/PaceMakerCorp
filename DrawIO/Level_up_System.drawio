@@ -1,0 +1,28 @@
+<mxfile host="Electron" modified="2024-04-30T06:06:13.606Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.2.5 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="psOVOnpCS3pYcsHJqO-Y" version="24.2.5" type="device">
+  <diagram name="ページ1" id="lsyMMz57b_KOqI71JVHN">
+    <mxGraphModel dx="1434" dy="837" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="EWi4sJAbIb0Pqt_4c7Wa-1" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Unitの経験値による能力上昇&lt;/h1&gt;&lt;div&gt;ただUnitによっては変則的な動きをするものも有る&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="40" width="400" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="EWi4sJAbIb0Pqt_4c7Wa-3" value="&lt;h3&gt;LevelUPによって上昇変動する要素&lt;/h3&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="160" width="330" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="EWi4sJAbIb0Pqt_4c7Wa-4" value="HP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="EWi4sJAbIb0Pqt_4c7Wa-3">
+          <mxGeometry y="30" width="330" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="EWi4sJAbIb0Pqt_4c7Wa-5" value="Supply" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="EWi4sJAbIb0Pqt_4c7Wa-3">
+          <mxGeometry y="60" width="330" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="EWi4sJAbIb0Pqt_4c7Wa-6" value="Commanderの場合UnitMember数" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="EWi4sJAbIb0Pqt_4c7Wa-3">
+          <mxGeometry y="90" width="330" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="EWi4sJAbIb0Pqt_4c7Wa-7" value="ItemHolderの数" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="EWi4sJAbIb0Pqt_4c7Wa-3">
+          <mxGeometry y="120" width="330" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

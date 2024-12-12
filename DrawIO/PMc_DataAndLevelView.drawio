@@ -1,0 +1,309 @@
+<mxfile host="Electron" modified="2024-04-23T02:35:35.551Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.2.5 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="SwDmh-9pmrnI-6D6ZkqX" version="24.2.5" type="device">
+  <diagram name="ページ1" id="0uvUiJmRorDg5O1z6Fqz">
+    <mxGraphModel dx="2049" dy="1196" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-1" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;やること&lt;/h1&gt;&lt;p&gt;難易度に応じた敵の選択を可能にする&lt;/p&gt;&lt;p&gt;Baseとなる部隊の付属部隊であればBaseの撃破率を付与し、それに応じて付属部隊のレベルを低くする&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="10" y="10" width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-2" value="必要なパラメータ" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="10" y="140" width="410" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-3" value="全体の難易度設定" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-2" vertex="1">
+          <mxGeometry y="30" width="410" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-4" value="敵データベースで敵部隊のレベル" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-2" vertex="1">
+          <mxGeometry y="60" width="410" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-5" value="敵データベースに記されずSaveのみのBase部隊の保持" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-2" vertex="1">
+          <mxGeometry y="90" width="410" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-6" value="敵データベースに記されないSaveのみのBase部隊のLevel&lt;div&gt;(&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-2" vertex="1">
+          <mxGeometry y="120" width="410" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-7" value="Base部隊のデータベース" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="550" y="150" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-8" value="ID (Levelが異なれば同じIDの部隊もありうる)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-7" vertex="1">
+          <mxGeometry y="30" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-9" value="Level (0~8)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-7" vertex="1">
+          <mxGeometry y="60" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-15" value="Follower部隊のデータベース" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="270" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-16" value="ID (Levelが異なれば同じIDの部隊もありうる)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-15" vertex="1">
+          <mxGeometry y="30" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-17" value="Level" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-15" vertex="1">
+          <mxGeometry y="60" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-19" value="SaveDataのFollowerSpawn" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1170" y="150" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-20" value="ID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-19" vertex="1">
+          <mxGeometry y="30" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-21" value="Level&amp;nbsp; &amp;nbsp;（Spawn時につけられる固定）&lt;div&gt;難易度関係なくFollowerの全体的な強さのみ考慮&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-19" vertex="1">
+          <mxGeometry y="60" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-22" value="Base部隊のID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-19" vertex="1">
+          <mxGeometry y="100" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="42rSPQHtRtc1tEx3mE-A-23" target="42rSPQHtRtc1tEx3mE-A-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="42rSPQHtRtc1tEx3mE-A-23" target="42rSPQHtRtc1tEx3mE-A-35" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-23" value="&lt;h2&gt;全体の難易度&lt;br&gt;Difficulty (0~2)&lt;/h2&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="855" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-25" value="SaveDataのBaseSpawn" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1170" y="380" width="280" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-26" value="ID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-25" vertex="1">
+          <mxGeometry y="30" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-27" value="Level (0~5)　&lt;div&gt;(Spawn時につけられるほかFollower撃破時に減算される)&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-25" vertex="1">
+          <mxGeometry y="60" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-46" value="FollwerSpawnが発生した時間とIDのList&lt;div&gt;Follwerの頻度等々を指定するために使用&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-25" vertex="1">
+          <mxGeometry y="110" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-72" value="IsSpawnFollowers　周囲に自動でFollwerを配置するか　EventNodeで必要" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-25" vertex="1">
+          <mxGeometry y="160" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="42rSPQHtRtc1tEx3mE-A-31" target="42rSPQHtRtc1tEx3mE-A-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-31" value="Level + DIfficulty" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="990" y="200" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="42rSPQHtRtc1tEx3mE-A-21" target="42rSPQHtRtc1tEx3mE-A-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="42rSPQHtRtc1tEx3mE-A-35" target="42rSPQHtRtc1tEx3mE-A-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-35" value="Level + DIfficulty" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="890" y="310" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="42rSPQHtRtc1tEx3mE-A-27" target="42rSPQHtRtc1tEx3mE-A-35" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="42rSPQHtRtc1tEx3mE-A-21" target="42rSPQHtRtc1tEx3mE-A-43" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="42rSPQHtRtc1tEx3mE-A-43" target="42rSPQHtRtc1tEx3mE-A-27" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-43" value="- Int(FollwerLevel/2)&lt;div&gt;最低保証-1&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="425" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-45" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Level処理とスポーン&lt;/h1&gt;&lt;p&gt;前提としてスポーン処理はすべてEventNodeから行う&lt;/p&gt;&lt;p&gt;どのようにFollowerとBaseをスポーンさせLevelを指定させるか&lt;/p&gt;&lt;p&gt;Followerの場合はどこのBaseからスポーンさせるか指定&lt;/p&gt;&lt;p&gt;Eventで繰り返し行う処理&lt;/p&gt;&lt;p&gt;SpawnDataに現在はLocationIDとtileIDがくっついているが、これをNode指定に治す&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="15" y="440" width="360" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-48" value="&lt;h3&gt;SpawnNode&lt;/h3&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="580" y="690" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-49" value="&lt;h4&gt;指定されたSpawnをEventとして出力するNode&lt;/h4&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-48" vertex="1">
+          <mxGeometry y="30" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-50" value="ID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-48" vertex="1">
+          <mxGeometry y="80" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-51" value="LocationID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-48" vertex="1">
+          <mxGeometry y="110" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-54" value="Level" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-48" vertex="1">
+          <mxGeometry y="140" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-53" value="StartPosition&amp;nbsp; 0~3の出撃位置の種類 Defaultは0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-48" vertex="1">
+          <mxGeometry y="170" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-55" value="&lt;h3&gt;&lt;font color=&quot;#ffffff&quot;&gt;SpawnEventOutput: EventOutput&lt;/font&gt;&lt;/h3&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" parent="1" vertex="1">
+          <mxGeometry x="75" y="700" width="315" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-56" value="NextPort 　次にExecuteするProcessNodeのPort" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="30" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-57" value="NodeID 　固有ID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="60" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-58" value="EventID　イベントの固有ID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="90" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-59" value="NodeName" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="120" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-60" value="SquadID SpawnさせるSquadのID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="150" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-63" value="LocationID どのLocationにスポーンさせるか" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="180" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-64" value="StartPosition&amp;nbsp; どこのTIleにスポーンさせて始めるか" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="210" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-66" value="Level　SpawnさせるSquadのLevel" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="240" width="315" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-67" value="BaseSpawnID　親となる部隊があればこれをつける&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;つけた場合Followerになるということ&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-55" vertex="1">
+          <mxGeometry y="270" width="315" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-65" value="StartPositionは NodeのPoisitionと同じtypeのスポーンポジションが&lt;div&gt;Locationに存在している場合はそれが適用される&lt;/div&gt;&lt;div&gt;Locationにない場合はDefaultのポジションになる&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="25" y="1040" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="42rSPQHtRtc1tEx3mE-A-49" target="42rSPQHtRtc1tEx3mE-A-56" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-69" value="Eventとして出力" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="42rSPQHtRtc1tEx3mE-A-68" vertex="1" connectable="0">
+          <mxGeometry x="0.0211" relative="1" as="geometry">
+            <mxPoint x="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="42rSPQHtRtc1tEx3mE-A-70" target="42rSPQHtRtc1tEx3mE-A-48" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-70" value="Eventとしての固定敵のスポーン" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="630" y="610" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-73" value="GetSpawns" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="580" y="960" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-74" value="Map上に存在するSpawnsを取得" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-73" vertex="1">
+          <mxGeometry y="30" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="42rSPQHtRtc1tEx3mE-A-75" value="IsSpawnFollwers&amp;nbsp; BaseSpawn.ISSpawnFollwersがtrueのSpawnsだけを返す" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="42rSPQHtRtc1tEx3mE-A-73" vertex="1">
+          <mxGeometry y="60" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-1" value="MapSquad.cs&amp;nbsp;ReachedEventArgs.Enemy&lt;div&gt;内でSpawnRequestDataのSquadIDとLevel、Gamemanager.DatasavingController.SaveDataInfo.GameDifficultyからSquadDataを取得している&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="560" y="390" width="400" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-3" value="&lt;h3 style=&quot;margin-top: 0px;&quot;&gt;Follwerの撃破とBaseのLevel低下&lt;/h3&gt;&lt;p&gt;MapSpawns.DespawnEncountSquads : Squadが撃破された際に呼び出される&lt;/p&gt;&lt;p&gt;内でMapSpawns.ReduceSquadPowerでbaseのSpawnRequestのLevelからFollowerのコスト分を引いている&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="1480" y="520" width="390" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-4" value="&lt;h3&gt;SpawnSquadDataContainer.cs&amp;nbsp; &amp;nbsp;SpawnRequestArgs&lt;/h3&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="960" y="780" width="400" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-5" value="&lt;h4&gt;Spawnした内容をSaveDataに保存しておくためのclass&lt;br&gt;EventSceneController.SpawnSquadRequestより発生&lt;/h4&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="30" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-6" value="SpawnSquadID&amp;nbsp; SquadのID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="80" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-7" value="BaseSquadID&amp;nbsp; &amp;nbsp; &amp;nbsp;Squadが別部隊の隷下の場合BaseとなるSquadのID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="110" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-8" value="LocationID　　　Spawnする位置のID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="140" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-9" value="Level　　　　　SpawnするLevel&amp;nbsp; (Followerの撃破で引かれていく)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="170" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-10" value="SpawnTime&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; Spawnした時間" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="200" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-11" value="IsNecessaryForEvent&amp;nbsp; &amp;nbsp; イベント用に必要なSquadか" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="230" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-12" value="Sort&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;Spawnする優先順位" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="260" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-13" value="SpecificTacticsSceneID&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;TacticsSceneを指定したSquadの場合　nullならLocationのDefaultが入る" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="290" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="27shT9aCNZ07b-2ksX24-14" value="StartPosition&amp;nbsp; &amp;nbsp; Tacticsの始まる位置&amp;nbsp; EventGraph.InOut.StartPosition" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="27shT9aCNZ07b-2ksX24-4" vertex="1">
+          <mxGeometry y="320" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-2" value="&lt;h4&gt;SpawnSquad&lt;/h4&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1480" y="880" width="400" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-3" value="MapSpawns内でSpawnした敵の実Object" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-2" vertex="1">
+          <mxGeometry y="30" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-4" value="SpawnRequestArgs セーブされたREquestDataをSpawnSquadで保持" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-2" vertex="1">
+          <mxGeometry y="60" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-11" value="&lt;h3&gt;[serializable] MapSquads.ReachedEventArgs&lt;/h3&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="975" y="1560" width="400" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-12" value="MapLocationにMapSquadが到着したときのArgs&lt;div&gt;SaveDataInfoにencounterのデータとしてtacticsから始める際のデータとして保存されている&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="30" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-14" value="PlayerSquadID&amp;nbsp; 到着したplayerID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="90" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-15" value="MapLocationID&amp;nbsp; 到着したMapLocationのID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="120" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-16" value="ReachedDateTime&amp;nbsp; 到着した時刻" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="150" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-17" value="SpawnRequestData&amp;nbsp; エンカウントした場合の敵データ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="180" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-13" value="TacticsSceneID&amp;nbsp; initでlocation.DefaultかSpecificTacticsIDか決定" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="210" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-18" value="ReachedAtLocation　指定した場所に到着したならtrue、経由ならfalse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="240" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-24" value="&lt;h5&gt;Getter and Setter&lt;/h5&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="270" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-20" value="Squad Player&amp;nbsp; PlayerSquadIDからSquadのデータを取得する" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="300" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-21" value="SpawnSquadData&amp;nbsp; Enemy&amp;nbsp;&lt;div&gt;エンカウントした敵軍をSpawnRequestDataのIDとlevel, GameLevelから実データを取得する&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="Qj1jP52Yg7pJTp7r70Gn-11" vertex="1">
+          <mxGeometry y="330" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Qj1jP52Yg7pJTp7r70Gn-25" target="Qj1jP52Yg7pJTp7r70Gn-26" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-28" value="args.Encountered" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="Qj1jP52Yg7pJTp7r70Gn-27" vertex="1" connectable="0">
+          <mxGeometry x="0.0479" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-25" value="&lt;h3&gt;MainMapController.ReachedAtLocation&lt;/h3&gt;&lt;div&gt;- ReachedAtLocationArgs&lt;/div&gt;&lt;div&gt;Playerがlocationに到着したとき呼び出し&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="555" y="1120" width="290" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Qj1jP52Yg7pJTp7r70Gn-26" target="Qj1jP52Yg7pJTp7r70Gn-29" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-26" value="&lt;h3&gt;MainMapController.ShowTacticsScene&lt;/h3&gt;&lt;div&gt;エンカウント時のMapの処理と&lt;/div&gt;&lt;div&gt;BeforeEncounterのEventの検証&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="558.12" y="1310" width="283.75" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-32" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Qj1jP52Yg7pJTp7r70Gn-29" target="Qj1jP52Yg7pJTp7r70Gn-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-29" value="&lt;h3&gt;MainMapScene.TransitToTacticsScene&lt;/h3&gt;&lt;div&gt;GameManagerに画面遷移を伝達&lt;/div&gt;&lt;div&gt;及びReachedAtLocationArgsをGameManagerにわたす&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="550" y="1470" width="300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-31" value="&lt;h1&gt;TacticsScene&lt;/h1&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="600" y="1670" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="Qj1jP52Yg7pJTp7r70Gn-12" target="Qj1jP52Yg7pJTp7r70Gn-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Qj1jP52Yg7pJTp7r70Gn-34" value="TacticsのデータはすべてArgsにある" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="Qj1jP52Yg7pJTp7r70Gn-33" vertex="1" connectable="0">
+          <mxGeometry x="0.0317" y="-4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arX0cLvvQkVNWHI_0bQh-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Qj1jP52Yg7pJTp7r70Gn-17" target="27shT9aCNZ07b-2ksX24-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arX0cLvvQkVNWHI_0bQh-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Qj1jP52Yg7pJTp7r70Gn-4" target="27shT9aCNZ07b-2ksX24-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
