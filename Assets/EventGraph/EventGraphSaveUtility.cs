@@ -28,32 +28,32 @@ namespace EventGraph.Editor
         /// <param name="graphView"></param>
         public static bool SaveGraph(EventGraphView graphView)
         {
-            if (graphView.dataContainer == null)
+            if (graphView.DataContainer == null)
             {
                 Debug.LogWarning($"DataContainer is null");
                 return false;
             }
 
             var nodes = GetNodes(graphView);
-            graphView.dataContainer.Nodes.Clear();
+            graphView.DataContainer.Nodes.Clear();
 
             foreach(var node in nodes)
             {
                 if (node.Guid == null || node.Guid.Length == 0)
                     node.Guid = System.Guid.NewGuid().ToString();
                 if (node is RootNode r)
-                    graphView.dataContainer.EventID = r.EventID;
+                    graphView.DataContainer.EventID = r.EventID;
                 var data = NodeFactory.MakeDataFromNode(node);
                 if (data == null)
                 {
                     Debug.LogWarning($"{data} is missing. The node isn't saved.");
                     continue;
                 }
-                graphView.dataContainer.Nodes.Add(data);
+                graphView.DataContainer.Nodes.Add(data);
             }
 
             var edges = GetEdges(graphView);
-            graphView.dataContainer.Edges.Clear();
+            graphView.DataContainer.Edges.Clear();
             foreach(var edge in edges)
             {
                 if (edge.output.node == null || edge.input.node == null)
@@ -64,7 +64,7 @@ namespace EventGraph.Editor
                 var outputNode = edge.output.node as SampleNode;
                 var inputNode = edge.input.node as SampleNode;
 
-                graphView.dataContainer.Edges.Add(new EdgeData()
+                graphView.DataContainer.Edges.Add(new EdgeData()
                 {
                     BaseNodeGuid = outputNode.Guid,
                     BasePortName = edge.output.portName,
@@ -84,9 +84,9 @@ namespace EventGraph.Editor
         public static void SaveWindowInfo(EventGraphView graphView)
         {
             // Viewのポジションとズームを保存
-            graphView.dataContainer.viewPosition = graphView.viewTransform.position;
-            graphView.dataContainer.viewScale = graphView.viewTransform.scale;
-            EditorUtility.SetDirty(graphView.dataContainer);
+            graphView.DataContainer.viewPosition = graphView.viewTransform.position;
+            graphView.DataContainer.viewScale = graphView.viewTransform.scale;
+            EditorUtility.SetDirty(graphView.DataContainer);
            
         }
 
@@ -133,7 +133,7 @@ namespace EventGraph.Editor
                 graphView.CreateRootNode();
             }
 
-            graphView.dataContainer = dataContainer;
+            graphView.DataContainer = dataContainer;
             graphView.UpdateViewTransform(dataContainer.viewPosition, dataContainer.viewScale);
             // ApplyExpandedState(graphView, graphData); // NodeがExpanded状態でないとPortを発見できないのでEdge生成後に折りたたむ
 

@@ -112,13 +112,13 @@ namespace EventGraph.Nodes
         public override void Load(NodeData data)
         {
             base.Load(data);
-            data.raw.SetToPairs(LogicalOperationTypeKey, TypeField.value.ToString());
+            data.Raw.SetToPairs(LogicalOperationTypeKey, TypeField.value.ToString());
         }
 
         public override NodeData Save()
         {
             var data = base.Save();
-            data.raw.GetFromPairs(LogicalOperationTypeKey, out string strType);
+            data.Raw.GetFromPairs(LogicalOperationTypeKey, out string strType);
             TypeField.value = ((LogicalOperation[])Enum.GetValues(typeof(LogicalOperation))).ToList().FirstOrDefault(t => t.ToString() == strType);
 
             return data;

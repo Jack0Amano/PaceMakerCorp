@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d89ac8e3ede851e77556ab2430e40d2b4fed515e1ea08092068605f4d8523062
-size 449
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:GroupBox style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 2px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+        <ui:Label text="Output Name" display-tooltip-when-elided="true" style="font-size: 10px;" />
+        <ui:TextField picking-mode="Ignore" />
+    </ui:GroupBox>
+</ui:UXML>

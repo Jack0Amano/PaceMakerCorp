@@ -13,48 +13,75 @@ namespace MainMap
     {
         [Tooltip("Gameの動くシーンの名前")]
         [SerializeField, ReadOnly] string mapSceneID;
-        [Tooltip("Gameの開始する時間 GameManagerに上げられてCurrentTimeになる")]
-        [SerializeField] SerializableDateTime startDateTime;
         [SerializeField] CinemachineVirtualCamera uiVirtualCamera;
         [SerializeField] CinemachineVirtualCamera tableVirtualCamera;
-        [Tooltip("Gameの開始時のVirtualCamera")]
-        [SerializeField] CinemachineVirtualCamera startVirtualCamera;
         [Tooltip("MapにSaveDataの内容が展開されているか")]
         [SerializeField, ReadOnly] public bool IsMapDataLoaded = false;
 
-        GameManager gameManager;
-
-        /// <summary>
-        /// GameのMapに固有なMapObject 違うMapでは別のものが用意されている
-        /// </summary>
-        MainMapController mainMapController;
         /// <summary>
         /// GameのMapに固有なUI 違うMapでは別のものが用意されている
         /// </summary>
-        UI.MainUIController mainUIController;
+        [SerializeField] UI.MainUIController mainUIController;
+
+        [SerializeField] UI.InfoPanel.SquadsInfoPanel squadsInfoPanel;
+
+        [SerializeField] UI.TableIcons.TableIconsPanel tableIconsPanel;
+
+        [SerializeField] MapUI.UI.InfoPanel.Calender calender;
 
         [Tooltip("mapを直接起動している場合")]
-        [SerializeField, ReadOnly] public bool isDebugMode = false;
+        [SerializeField, ReadOnly] public bool IsDebugMode = false;
+
+        GameManager gameManager;
+        /// <summary>
+        /// GameのMapに固有なMapObject 違うMapでは別のものが用意されている
+        /// </summary>
+        public MainMapController MainMapController { private set; get; }
+        /// <summary>
+        /// MapのGameObject
+        /// </summary>
+        GameObject mainMapObject;
+
+        /// <summary>
+        /// セーブをTempSaveから行うべき状態であるか
+        /// </summary>
+        public bool IsTempSave
+        {
+            get
+            {
+                if (MainMapController == null)
+                {
+                    if (MainMapController.MapSquads.IsSquadMoving)
+                    {
+                        // Squadが移動中の場合はセーブは以前位置した場所で行われたTempSaveが選ばれる
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
 
         protected private void Awake()
         {
             gameObject.SetActive(true);
             // 同じシーンにMainMapControllerがあるか
-            mainMapController = FindObjectOfType<MainMapController>();
+            MainMapController = FindObjectOfType<MainMapController>();
             mainUIController = FindObjectOfType<UI.MainUIController>();
             // MainMapControllerがあらかじめある場合はDebugModeになる
-            if (mainMapController != null)
+            if (MainMapController != null)
             {
-                isDebugMode = true;
-                mainMapController.tableVirtualCamera = tableVirtualCamera;
-                mainMapController.uiVirtualCamera = uiVirtualCamera;
+                IsDebugMode = true;
+                MainMapController.tableVirtualCamera = tableVirtualCamera;
+                MainMapController.uiVirtualCamera = uiVirtualCamera;
             }
 
             gameManager = GameManager.Instance;
             // Tacticsから戻ってきた時の処理
             gameManager.BackToMainMapHandler = (o, args) =>
             {
+                // GammeObjectが非アクティブになっている際にCorutineを実行するとエラーが出るため
                 gameObject.SetActive(true);
+
                 StartCoroutine(CalledWhenReturnFromTactics(o, args));
             };
 
@@ -65,12 +92,13 @@ namespace MainMap
         protected private void Start()
         {
             // デバッグモードならばMainMapControllerがあらかじめあるのでそちらを使う
-            if (isDebugMode)
+            if (IsDebugMode)
             {
                 IsMapDataLoaded = false;
-                mapSceneID = mainMapController.mapSceneID;
+                mapSceneID = MainMapController.mapSceneID;
                 gameManager.LoadDebugData(mapSceneID);
                 StartCoroutine(SetDataToMap());
+                SetParameterToMainMapController();
             }
             else
             {
@@ -84,9 +112,10 @@ namespace MainMap
         /// </summary>
         public void OnDestroyMap()
         {
-            if (mainMapController != null)
+            if (MainMapController != null)
             {
-                Destroy(mainMapController.transform.parent.gameObject);
+                Destroy(MainMapController.transform.parent.gameObject);
+                MainMapController = null;
             }
             
         }
@@ -101,20 +130,34 @@ namespace MainMap
             IsMapDataLoaded = false;
             var handle = Addressables.LoadAssetAsync<GameObject>(mapSceneID);
             yield return handle;
-            var mainMapObject = Instantiate(handle.Result);
-            mainMapController = mainMapObject.GetComponentInChildren<MainMapController>();
-            mainUIController = mainMapController.MainUIController;
+            mainMapObject = Instantiate(handle.Result);
+            MainMapController = mainMapObject.GetComponentInChildren<MainMapController>();
 
-            if (mainMapController == null)
+            if (MainMapController == null)
             {
                 Debug.LogError("MainMapControllerがありません");
                 yield break;
             }
 
-            mainMapController.tableVirtualCamera = tableVirtualCamera;
-            mainMapController.uiVirtualCamera = uiVirtualCamera;
+            SetParameterToMainMapController();
 
             yield return StartCoroutine(SetDataToMap());
+
+            gameManager.MainMapScene.CompleteToLoad();
+
+        }
+
+        /// <summary>
+        /// MainMapControllerに必要なパラメータをセットする
+        /// </summary>
+        private void SetParameterToMainMapController()
+        {
+            MainMapController.TableIconsPanel = tableIconsPanel;
+            MainMapController.MainUIController = mainUIController;
+            MainMapController.SquadsInfoPanel = squadsInfoPanel;
+            MainMapController.mainMapScene = this;
+            MainMapController.tableVirtualCamera = tableVirtualCamera;
+            MainMapController.uiVirtualCamera = uiVirtualCamera;
         }
 
         /// <summary>
@@ -128,7 +171,10 @@ namespace MainMap
                 yield return null;
 
             // TODO: 必要であればMainUIConに暗転Requestを送る
-            yield return StartCoroutine(mainMapController.LoadData());
+            yield return StartCoroutine(MainMapController.LoadData());
+            calender.UpdateTime();
+            gameManager.AddTimeEventHandlerAsync += (o, a) => calender.UpdateTime();
+
             mainUIController.CompleteToLoad();
             IsMapDataLoaded = true;
             gameManager.HasMainMapLoaded = true;
@@ -139,18 +185,37 @@ namespace MainMap
         /// </summary>
         public void CompleteToLoad()
         {
-            if (mainMapController != null)
+            if (MainMapController != null)
             {
-                mainMapController.CheckEventAtFirstTime();
+                StartCoroutine(MainMapController.CheckEventAtFirstTime());
+            }
+            gameManager.NortifyCompleteToLoad();
+        }
+
+        /// <summary>
+        /// SaveDataがTacticsSceneの物である場合の処理
+        /// </summary>
+        public void CheckLoadDataFromTacticsScene()
+        {
+            print($"CheckLoadDataFromTacticsScene: {MainMapController}");
+            if (MainMapController != null)
+            {
+                MainMapController.CheckEncountedSquad();
             }
         }
 
         /// <summary>
         /// Tactics画面に遷移する際の処理
         /// </summary>
-        public void TransitToTacticsScene()
+        public IEnumerator TransitToTacticsScene(ReachedEventArgs reachedEventArgs)
         {
-            gameObject.SetActive(false);
+            GameManager.Instance.ReachedEventArgs = reachedEventArgs;
+            yield return StartCoroutine(GameManager.Instance.ShowTactics(reachedEventArgs.TacticsSceneID));
+            mainUIController.CalledWhenEncount();
+            mainMapObject.SetActive(false);
+            //gameObject.SetActive(false);
+            tableVirtualCamera.Priority = 0;
+            uiVirtualCamera.Priority = 0;
         }
 
         /// <summary>
@@ -158,13 +223,15 @@ namespace MainMap
         /// </summary>
         private IEnumerator CalledWhenReturnFromTactics(object o, BackToMainMapHandlerArgs arg)
         {
-            GameManager.Instance.NortifyCompleteToLoad();
+            mainMapObject.SetActive(true);
+            gameManager.NortifyCompleteToLoad();
+            StartCoroutine(gameManager.FadeInOutCanvas.Hide());
             Print($"Tactics end: despawnEnemy.{arg.DespawnEnemy}, returnPlayer.{arg.ReturnPlayer}");
             yield return StartCoroutine(GameManager.Instance.EventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.AfterResultScene,
-                                                                                                    arg.EncounterEnemyID,
+                                                                                                    arg.EnemyID,
                                                                                                     arg.GameResult));
             mainUIController.CalledWhenReturnFromTactics();
-            mainMapController.CalledWhenReturnFromTactics(arg.DespawnEnemy, arg.ReturnPlayer);
+            MainMapController.CalledWhenReturnFromTactics(arg);
         }
 
     }

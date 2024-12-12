@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using DG.Tweening;
 using static Utility;
+using DG.Tweening.Core.Easing;
 
 namespace GameSetting {
 
@@ -51,15 +52,26 @@ namespace GameSetting {
             canvasGroup.alpha = 0;
             gameObject.SetActive(false);
             dataPanel.parentCanvas = this;
-            dataPanel.OnLoadData += () =>
+            dataPanel.SelectSavedDataToLoad += (SaveData data)=>
             {
-                Hide();
+                StartCoroutine(LoadData(data));
             };
         }
 
         // Update is called once per frame
         void Update()
         {
+        }
+
+        private IEnumerator LoadData(SaveData data)
+        {
+            var datetime = DateTime.Now;
+            yield return GameManager.Instance.LoadData(data);
+            // データの読み込みにかかった時間を表示
+            print("LoadData took " + (DateTime.Now - datetime).TotalSeconds + " seconds");
+            yield return new WaitForSeconds(0.5f);
+            print("Completed LoadData");
+            Hide();
         }
 
         /// <summary>

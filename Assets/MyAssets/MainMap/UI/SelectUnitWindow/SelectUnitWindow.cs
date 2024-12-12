@@ -75,8 +75,8 @@ namespace MainMap.UI.SelectUnit
             tabbar.tabButtonClicked += SelectClassTab;
             listAdapterCanvasGroup = listAdapter.GetComponent<CanvasGroup>();
 
-            unitDetail.itemList.OpenSelectItemWindowAction = OpenSelectItemWindow;
-            unitDetail.itemList.CloseSelectItemWindowAction = CloseSelectItemWindow;
+            unitDetail.itemList.openSelectItemWindowAction = OpenSelectItemWindow;
+            unitDetail.itemList.closeSelectItemWindowAction = CloseSelectItemWindow;
         }
 
         // Start is called before the first frame update

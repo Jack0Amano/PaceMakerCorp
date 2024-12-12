@@ -17,23 +17,23 @@ namespace UnitDetail
     public class ItemLists : MonoBehaviour
     {
         [SerializeField] internal SelectItemWindow selectItemWindow;
-        [SerializeField] ItemBox ItemBox;
+        [SerializeField] ItemBox itemBox;
 
         /// <summary>
         /// リスト表示するもののGameObject関連
         /// </summary>
-        readonly private List<ItemBox> Boxes = new List<ItemBox>();
+        readonly private List<ItemBox> boxes = new List<ItemBox>();
 
-        private UnitData UnitData;
+        private UnitData unitData;
 
         /// <summary>
         /// SelectItemWindowが開かれたときの呼び出し
         /// </summary>
-        internal Action OpenSelectItemWindowAction;
+        internal Action openSelectItemWindowAction;
         /// <summary>
         /// SelectItemWindowが閉じられたときの呼び出し
         /// </summary>
-        internal Action<UnitData> CloseSelectItemWindowAction;
+        internal Action<UnitData> closeSelectItemWindowAction;
 
         /// <summary>
         /// ゲームデータのセーブを行う
@@ -43,20 +43,11 @@ namespace UnitDetail
             get => GameManager.Instance.DataSavingController;
         }
 
-
-        /// <summary>
-        /// 何も装備していないときに装備されるデフォルトの武器のID
-        /// </summary>
-        string DefaultWeaponID
-        {
-            get => GameManager.Instance.DataSavingController.SaveData.DataInfo.DefaultWeaponID;
-        }
-
         protected void Awake()
         {
-            Boxes.Add(ItemBox);
-            ItemBox.Button.onClick.AddListener(() => ClickItemBox(ItemBox));
-            ItemBox.RemoveButton.onClick.AddListener(() => RemoveItem(ItemBox));
+            boxes.Add(itemBox);
+            itemBox.Button.onClick.AddListener(() => ClickItemBox(itemBox));
+            itemBox.RemoveButton.onClick.AddListener(() => RemoveItem(itemBox));
         }
 
         /// <summary>
@@ -65,17 +56,17 @@ namespace UnitDetail
         /// <param name="box"></param>
         private void ClickItemBox(ItemBox box)
         {
-            OpenSelectItemWindowAction?.Invoke();
+            openSelectItemWindowAction?.Invoke();
             selectItemWindow.Show(box.ItemHolder.Type, (itemId) =>
             {
                 // 表示が終わった際のコールバック
                 if (itemId.Length != 0)
                 {
-                    DataSavingController.MyArmyData.ItemController.SetItem(UnitData, box.ItemHolder, itemId);
+                    DataSavingController.MyArmyData.SetItem(unitData, box.ItemHolder, itemId);
                     box.UpdateItemWithAnimation();
-                    Boxes.FindAll(b => b.IsDefaultMode).ForEach(b => b.IsDefaultMode = false);
+                    boxes.FindAll(b => b.IsDefaultMode).ForEach(b => b.IsDefaultMode = false);
                 }
-                CloseSelectItemWindowAction?.Invoke(UnitData);
+                closeSelectItemWindowAction?.Invoke(unitData);
             });
         }
 
@@ -86,15 +77,15 @@ namespace UnitDetail
         private void RemoveItem(ItemBox box)
         {
 
-            DataSavingController.MyArmyData.ItemController.RemoveItemFromHolder(UnitData, box.ItemHolder);
+            DataSavingController.MyArmyData.RemoveItemFromHolder(unitData, box.ItemHolder);
 
-            var weapons = Boxes.FindAll(b =>
+            var weapons = boxes.FindAll(b =>
             {
                 return (b.ItemHolder.Type == HolderType.Primary && b.ItemHolder.Data != null) ||
                        (b.ItemHolder.Type == HolderType.Secondary && b.ItemHolder.Data != null);
             });
             var myArmyData = GameManager.Instance.DataSavingController.MyArmyData;
-            UnitData.SetDefaultItemIfNeeded(myArmyData.ItemController.DefaultWeapon.ItemData, myArmyData);
+            unitData.SetDefaultItemIfNeeded(myArmyData);
 
             box.UpdateItemWithAnimation();
         }
@@ -105,30 +96,30 @@ namespace UnitDetail
         /// <param name="holders"></param>
         public void SetEquipments(UnitData unitData)
         {
-            this.UnitData = unitData;
+            this.unitData = unitData;
             var holders = unitData.MyItems;
 
-            var addCount = holders.Count - Boxes.Count;
+            var addCount = holders.Count - boxes.Count;
             for (var i = 0; i < addCount; i++)
             {
                 if (addCount > 0)
                 {
-                    var box = Instantiate(ItemBox, transform);
-                    Boxes.Add(box);
+                    var box = Instantiate(itemBox, transform);
+                    boxes.Add(box);
                     box.Button.onClick.AddListener(() => ClickItemBox(box));
                     box.RemoveButton.onClick.AddListener(() => RemoveItem(box));
                 }
                 else if (addCount < 0)
                 {
-                    var last = Boxes.Last();
+                    var last = boxes.Last();
                     Destroy(last);
-                    Boxes.RemoveAt(Boxes.Count);
+                    boxes.RemoveAt(boxes.Count);
                 }
             }
 
-            for(var i =0; i<Boxes.Count; i++)
+            for(var i =0; i<boxes.Count; i++)
             {
-                var box = Boxes[i];
+                var box = boxes[i];
                 box.ItemHolder = holders[i];
             }
 
@@ -138,7 +129,7 @@ namespace UnitDetail
             }
             else if (DoesOnlyHaveDefault)
             {
-                var box = Boxes.FindAll(b =>
+                var box = boxes.FindAll(b =>
                 {
                     return (b.ItemHolder.Type == HolderType.Primary && b.ItemHolder.Data != null) ||
                            (b.ItemHolder.Type == HolderType.Secondary && b.ItemHolder.Data != null);
@@ -154,7 +145,7 @@ namespace UnitDetail
         {
             get
             {
-                var weapons = Boxes.FindAll(b =>
+                var weapons = boxes.FindAll(b =>
                 {
                     return (b.ItemHolder.Type == HolderType.Primary && b.ItemHolder.Data != null) ||
                            (b.ItemHolder.Type == HolderType.Secondary && b.ItemHolder.Data != null);
@@ -162,7 +153,7 @@ namespace UnitDetail
                 if (weapons.Count == 0)
                     return true;
                 if (weapons.Count == 1)
-                    return weapons.Find(w => w.ItemHolder.Data.ID == DefaultWeaponID);
+                    return weapons.Find(w => w.ItemHolder.Data.ID == GameManager.Instance.SceneParameter.DefaultWeaponID);
                 return false;
             }
         }

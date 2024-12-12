@@ -16,7 +16,6 @@ using DG.Tweening;
 using Tactics.Items;
 using Tactics.Map;
 
-
 namespace Tactics.Character
 {
     /// <summary>
@@ -62,7 +61,7 @@ namespace Tactics.Character
         [Tooltip("UnitがTabletを見る際のカメラ")]
         [SerializeField] internal CinemachineVirtualCamera watchTabletCamera;
         [Tooltip("UnitがTabletを見る際のTabletの位置")]
-        [SerializeField] internal Transform tabletPosition;
+        [SerializeField] public Transform tabletPosition;
         [Tooltip("Unitが遠くを見る際の少し頭上にあるカメラの位置")]
         [SerializeField] internal CinemachineVirtualCamera stationaryCamera;
 
@@ -309,7 +308,7 @@ namespace Tactics.Character
             circleTrigger.OnTriggerExitAction += TriggerExit;
 
             var originHead = bodyParts.Find(p => p.partType.Equals(TargetPartType.Head));
-            if (originHead.partObjects.IndexAt_Bug(0, out var myHead))
+            if (originHead.partObjects.IndexAt(0, out var myHead))
                 myEyesLocationObject = myHead;
             else
                 PrintError(this.ToString(), ": Eyes location is not set. Set object as TargetPartType.Head.");
@@ -1183,11 +1182,11 @@ namespace Tactics.Character
         /// <summary>
         /// GetRayDistanceToで処理を軽くするためすでに射線が計算されている移動していないtargetの位置
         /// </summary>
-        private readonly Dictionary<UnitController, (Vector3 loc, float dist)> RayTargetAndLocationPair =  new Dictionary<UnitController, (Vector3, float)>();
+        private readonly Dictionary<UnitController, (Vector3 loc, float dist)> rayTargetAndLocationPair =  new Dictionary<UnitController, (Vector3, float)>();
         /// <summary>
         /// GetRayDistanceToで処理を軽くするためのすでに射線が計算されている移動してないmyunitの位置
         /// </summary>
-        private Vector3 PreviousRayShootLocation;
+        private Vector3 previousRayShootLocation;
         /// <summary>
         /// ターゲットまでの距離を取得 ShootTargetLayerMaskに属するオブジェクトで射線が通るかどうかで判断
         /// </summary>
@@ -1206,9 +1205,9 @@ namespace Tactics.Character
             }
 
             // MyUnitの位置とTargetの位置が同じであるとき計算を省略して過去のものを返す
-            if (PreviousRayShootLocation != null &&
-                IsNear(PreviousRayShootLocation, origin) &&
-                RayTargetAndLocationPair.TryGetValue(target, out var previous))
+            if (previousRayShootLocation != null &&
+                IsNear(previousRayShootLocation, origin) &&
+                rayTargetAndLocationPair.TryGetValue(target, out var previous))
             {
                 if (IsNear(previous.loc, target.transform.position))
                 {
@@ -1222,7 +1221,7 @@ namespace Tactics.Character
                 origin = new Vector3(_location.x, origin.y, _location.z);
             }
 
-            PreviousRayShootLocation = transform.position;
+            previousRayShootLocation = transform.position;
             RaycastHit hit;
             foreach (var part in target.bodyParts)
             {
@@ -1238,13 +1237,13 @@ namespace Tactics.Character
                     //　Debug.DrawRay(ray.origin, direction * 100, Color.green, 10);
                     if (raycastPart.Equals(hit.collider.gameObject))
                     {
-                        RayTargetAndLocationPair[target] = (target.transform.position, hit.distance);
+                        rayTargetAndLocationPair[target] = (target.transform.position, hit.distance);
                         return hit.distance;
                     }
                 }
             }
 
-            RayTargetAndLocationPair[target] = (target.transform.position, 0);
+            rayTargetAndLocationPair[target] = (target.transform.position, 0);
             return 0;
         }
 

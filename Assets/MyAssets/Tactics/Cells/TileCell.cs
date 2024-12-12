@@ -9,6 +9,7 @@ using static Utility;
 using UnityEditor;
 using UnityEngine.Rendering.Universal;
 using Tactics.Object;
+using EventGraph.InOut;
 
 namespace Tactics.Map
 {
@@ -44,6 +45,12 @@ namespace Tactics.Map
         [Header("Spawn Point")]
         [Tooltip("Enemyのスポーンの優先順")]
         [SerializeField] public int spawnPriority = 0;
+
+        [Tooltip("StartPositionに対応するTileの位置 StartPositionで指定された場合合致するTileから味方が出撃する")]
+        [SerializeField] public StartPosition StartPosition;
+
+        [Tooltip("StartPositionに対応して敵が出撃する場合のスポーンポイント")]
+        [SerializeField] public bool IsEnemyStartPosition = false;
 
         [Tooltip("Tankが含まれている場合のスポーンポイント")]
         [SerializeField] public TileSpawnPoints withTankSpawnPoints;

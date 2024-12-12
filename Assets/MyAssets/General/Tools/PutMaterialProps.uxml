@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:2a65ba3654a33d1fdac60e7b5cc98df6daf4d38fd67cb88989fd136f7f36e2d2
-size 650
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:DropdownField label="Properties" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="DropdownField" style="align-items: flex-start; justify-content: space-between; flex-direction: row;" />
+    <ui:TextField picking-mode="Ignore" label="New Value" name="NewValue" style="justify-content: flex-start; transform-origin: center; align-items: flex-end; word-spacing: 0; -unity-text-outline-width: 0; overflow: hidden;" />
+    <ui:Button text="Submit" display-tooltip-when-elided="true" name="Submit" />
+</ui:UXML>

@@ -144,7 +144,7 @@ namespace StartWindow
             {
                 // 選択時呼び出し idはSceneのid
                 gameManager.StaticData.LoadStaticSceneData(model.mapSceneID);
-                StartCoroutine(gameManager.ShowTactics(model.tacticsSceneID)) ;
+                //StartCoroutine(gameManager.ShowTactics(model.tacticsSceneID)) ;
             });
         }
 

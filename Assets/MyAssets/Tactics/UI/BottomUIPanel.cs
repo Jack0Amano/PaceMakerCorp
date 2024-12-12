@@ -242,12 +242,34 @@ namespace Tactics.UI.Overlay
 
             partAndValuesDict = activeUnit.GetAttackPoint(target);
 
-            targetPartUIDict[TargetPartType.Body].percentageLabel.SetText((int)(partAndValuesDict[TargetPartType.Body].percentage * 100));
-            targetPartUIDict[TargetPartType.Head].percentageLabel.SetText((int)(partAndValuesDict[TargetPartType.Head].percentage * 100));
-            targetPartUIDict[TargetPartType.Arm].percentageLabel.SetText((int)(partAndValuesDict[TargetPartType.Arm].percentage * 100));
-            targetPartUIDict[TargetPartType.Leg].percentageLabel.SetText((int)(partAndValuesDict[TargetPartType.Leg].percentage * 100));
+            /// <summary>
+            /// FOCUSモードのTargetUIに攻撃可能な部位の情報を表示する
+            /// </summary>
+            static void SetParcentageLabel(TargetPartUI targetPartUI, float percentage)
+            {
+                if (float.IsNaN(percentage))
+                {
+                    targetPartUI.percentageLabel.SetText("NaN");
+                    targetPartUI.labelButton.enabled = false;
+                }
+                else
+                {
+                    targetPartUI.percentageLabel.SetText($"{(int)(percentage * 100)} %");
+                    targetPartUI.labelButton.enabled = true;
+                }
+            }
+
+            // 攻撃可能な部位の情報を表示
+            SetParcentageLabel(targetPartUIDict[TargetPartType.Body], partAndValuesDict[TargetPartType.Body].percentage);
+            SetParcentageLabel(targetPartUIDict[TargetPartType.Head], partAndValuesDict[TargetPartType.Head].percentage);
+            SetParcentageLabel(targetPartUIDict[TargetPartType.Arm], partAndValuesDict[TargetPartType.Arm].percentage);
+            SetParcentageLabel(targetPartUIDict[TargetPartType.Leg], partAndValuesDict[TargetPartType.Leg].percentage);
+
+            // targetの基本情報を表示
             hpLabel.SetText(target.CurrentParameter.HealthPoint);
             nameLabel.SetText(target.CurrentParameter.Data.Name);
+
+            Print("TargetUI", target.CurrentParameter.Data.Name, "HP", target.CurrentParameter.HealthPoint, "HitRate", partAndValuesDict[TargetPartType.Body].percentage); ;
         }
 
         /// <summary>
@@ -375,27 +397,36 @@ namespace Tactics.UI.Overlay
     /// <summary>
     /// ターゲットを指定して攻撃を支持したときのEventのArg
     /// </summary>
-    //public class Target: EventArgs
-    //{
-    //    public UnitController targetUnit;
-    //    public TargetPartType partType;
-    //    /// <summary>
-    //    /// 0~1
-    //    /// </summary>
-    //    public float percentage;
-    //    public int damage = 0;
-    //}
+    public class Target: EventArgs
+    {
+        public UnitController targetUnit;
+        public TargetPartType partType;
+        /// <summary>
+        /// 0~1
+        /// </summary>
+        public float percentage;
+        public int damage = 0;
+    }
 
     /// <summary>
     /// HUDのターゲットの部位選択UIのパーツ毎のclass
     /// </summary>
-    //[Serializable]
-    //public class TargetPartUI
-    //{
-    //    public TargetPartType targetPartType;
-    //    public Button labelButton;
-    //    public TextMeshProUGUI percentageLabel;
-    //}
+    [Serializable]
+    public class TargetPartUI
+    {
+        /// <summary>
+        /// ターゲットの部位
+        /// </summary>
+        public TargetPartType targetPartType;
+        /// <summary>
+        /// 攻撃を行うボタン
+        /// </summary>
+        public Button labelButton;
+        /// <summary>
+        /// パーツの攻撃可能率を表示するラベル
+        /// </summary>
+        public TextMeshProUGUI percentageLabel;
+    }
 
     /// <summary>
     /// 呼び出し続けないと自動で非表示になるアイコン

@@ -10,6 +10,7 @@ using UnityEngine.AddressableAssets;
 using static Utility;
 using MainMap.UI.TableIcons;
 using Unity.VisualScripting;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace MainMap
 {
@@ -19,8 +20,10 @@ namespace MainMap
     public class MapSquads : MonoBehaviour
     {
         [SerializeField] Roads.MapRoads mapRoads;
-        [SerializeField] TableIconsPanel TableOverlayPanel;
+        
         [SerializeField] private GUIStyle passGuiStyle;
+
+        internal TableIconsPanel tableOverlayPanel;
 
         /// <summary>
         /// Mapの各地点の情報  MainMapControllerより
@@ -160,7 +163,6 @@ namespace MainMap
             gameManager.PassTimeEventHandlerAsync += TimerNortification;
             gameManager.AddTimeEventHandlerAsync += AddTimeNortificationAsync;
             gameManager.AddTimeEventHandlerSync += AddTimeNortificationSync;
-            TableOverlayPanel.MapSquads = this;
 
             Initialize();
         }
@@ -168,7 +170,7 @@ namespace MainMap
         protected void Update()
         {
             if (readySquad != null)
-                TableOverlayPanel.UpdateSquadPosition(readySquad.SquadImage);
+                tableOverlayPanel.UpdateSquadPosition(readySquad.SquadImage);
         }
 
         /// <summary>
@@ -176,6 +178,8 @@ namespace MainMap
         /// </summary>
         internal IEnumerator LoadData()
         {
+            tableOverlayPanel.MapSquads = this;
+
             // 一旦全てのSquadとObjectを消す
             Squads.ForEach((s) => Destroy(s.gameObject));
             Squads.Clear();
@@ -257,7 +261,7 @@ namespace MainMap
                     squadOfMoveSupplyTo.SupplyLevel += parameter.MoveSupplyingAmountPerHour / 60;
                     squadOfMoveSupplyFrom.SupplyLevel -= parameter.MoveSupplyingAmountPerHour / 60;
                     GameManager.Instance.Speed = 4;
-                    TableOverlayPanel.FastForwardIcon.Show();
+                    tableOverlayPanel.FastForwardIcon.Show();
                 }
                 else
                 {
@@ -271,7 +275,7 @@ namespace MainMap
                         squadOfMoveSupplyFrom.CancelMoveAnimation();
                         StartCoroutine(squadOfMoveSupplyFrom.AnimationReturnToBaseForced());
                         StartCoroutine(SquadReturnToBase(squadOfMoveSupplyFrom, true));
-                        TableOverlayPanel.FastForwardIcon.Hide();
+                        tableOverlayPanel.FastForwardIcon.Hide();
 
                     }
                     else if (squadOfMoveSupplyTo.IsSupplyFull)
@@ -280,7 +284,7 @@ namespace MainMap
                         // Supplyの補充が完了した
                         squadOfMoveSupplyFrom = squadOfMoveSupplyTo = null;
                         IsMovingSupply = false;
-                        TableOverlayPanel.FastForwardIcon.Hide();
+                        tableOverlayPanel.FastForwardIcon.Hide();
                     }
                     else
                     {
@@ -308,7 +312,7 @@ namespace MainMap
                             if (GameManager.Instance.Speed != 1)
                             {
                                 GameManager.Instance.Speed = 1;
-                                TableOverlayPanel.FastForwardIcon.Hide();
+                                tableOverlayPanel.FastForwardIcon.Hide();
                             }
                             s.CancelMoveAnimation();
                             StartCoroutine(s.AnimationReturnToBaseForced());
@@ -341,6 +345,16 @@ namespace MainMap
                     s.supplyLevel = s.MaxSupply;
                 //-45.583
             });
+        }
+
+        /// <summary>
+        /// SquadからMapSquadを取得する
+        /// </summary>
+        /// <param name="squad"></param>
+        /// <returns></returns>
+        internal MapSquad GetMapSquadFromSquadData(Squad squad)
+        {
+            return Squads.Find(s => s.data == squad);
         }
 
         #region Squadの行動
@@ -385,8 +399,8 @@ namespace MainMap
             readySquad = obj.AddComponent<MapSquad>();
             readySquad.data = squad;
             readySquad.IsSpawnMode = true;
-            readySquad.tableOverlayPanel = TableOverlayPanel;
-            readySquad.SquadImage = TableOverlayPanel.AddSquadImage(readySquad, true);
+            readySquad.tableOverlayPanel = tableOverlayPanel;
+            readySquad.SquadImage = tableOverlayPanel.AddSquadImage(readySquad, true);
             infoPanel.AddWithAnimation(readySquad);
             return readySquad;
         }
@@ -401,14 +415,14 @@ namespace MainMap
             var newSquad = readySquad;
 
             newSquad.transform.position = location.transform.position;
-            newSquad.squadReachedOnSpawnPoint = SquadReachedOnSpawnPoint;
+            newSquad.squadReachedOnLocation = SquadReachedOnSpawnPoint;
             newSquad.squadGetsNearToSpawnPoint = SquadGetsNearToSpawnPoint;
             newSquad.mapLocations = MapLocations;
             newSquad.Location = location;
             Squads.Add(readySquad);
             newSquad.IsSpawnMode = false;
             newSquad.IsOnMap = true;
-            readySquad.tableOverlayPanel = TableOverlayPanel;
+            readySquad.tableOverlayPanel = tableOverlayPanel;
             readySquad.SquadImage.PutSquadOnMap();
             readySquad = null;
 
@@ -469,14 +483,16 @@ namespace MainMap
             obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, 0, obj.transform.localPosition.z);
             
             var mapSquad = obj.AddComponent<MapSquad>();
-            mapSquad.tableOverlayPanel = TableOverlayPanel;
-            mapSquad.SquadImage = TableOverlayPanel.AddSquadImage(mapSquad);
-            mapSquad.squadReachedOnSpawnPoint = SquadReachedOnSpawnPoint;
+            mapSquad.tableOverlayPanel = tableOverlayPanel;
+            mapSquad.SquadImage = tableOverlayPanel.AddSquadImage(mapSquad);
+            mapSquad.squadReachedOnLocation = SquadReachedOnSpawnPoint;
             mapSquad.mapLocations = MapLocations;
             mapSquad.data = squad;
+            obj.name = squad.name;
             mapSquad.Location = MapLocations.GetLocationFromID(mapSquad.data.LocationID);
             if (mapSquad.IsOnTurnout)
                 mapSquad.turnoutPosition = turnoutPosition;
+
             Squads.Add(mapSquad);
             yield return null;
         }
@@ -488,15 +504,13 @@ namespace MainMap
         /// <param name="squad"></param>
         private void SquadReachedOnSpawnPoint(MapLocation location, MapSquad squad)
         {
-            if (squad.Location == location)
-                return;
 
             var args = new ReachedEventArgs
             {
                 Player = squad.data,
-                MapLocation = location,
+                MapLocationID = location.id,
                 ReachedAtLocation = location == SquadMoveTo,
-                DateTime = gameManager.GameTime
+                ReachedDateTime = gameManager.GameTime
             };
 
             if (location == SquadMoveTo)
@@ -512,7 +526,10 @@ namespace MainMap
             // 的にエンカウントした場合の処理
             if (location.SpawnSquadOnLocation != null)
             {
-                args.Enemy = location.SpawnSquadOnLocation.data;
+                // Squadの移動を停止する
+                squad.CancelMoveAnimation();
+
+                args.SpawnRequestData = location.SpawnSquadOnLocation.SpawnRequestData;
                 MapSpawns.Encount(location.SpawnSquadOnLocation, squad);
                 SquadMoveFrom = SquadMoveTo = null;
             }
@@ -669,14 +686,22 @@ namespace MainMap
             gameManager.Speed = 30;
             var startTime = GameManager.Instance.GameTime;
             var startRealTime = DateTime.Now;
-            StartCoroutine(SelectedSquad.MoveAlong(routeCheckPoints, SquadMoveTo, () =>
+            StartCoroutine(SelectedSquad.MoveAlong(routeCheckPoints, SquadMoveTo, (isCompleteToMove) =>
             {
-                var endTimeText = GameManager.Instance.GameTime.ToString("yyyy/MM/dd HH:mm:ss");
-                var timeDurationText = (GameManager.Instance.GameTime - startTime).TotalMinutes;
-                print($"Squad {squad.data.name} moved from {squad.Location.Data} to {to.Data} at {startTime.ToString("yyyy/MM/dd HH:mm:ss")} to {endTimeText}, duration {timeDurationText} min\n"+
-                    $"RealTime: {(DateTime.Now - startRealTime).TotalSeconds}");
+                if (isCompleteToMove)
+                {
+                    var endTimeText = GameManager.Instance.GameTime.ToString("yyyy/MM/dd HH:mm:ss");
+                    var timeDurationText = (GameManager.Instance.GameTime - startTime).TotalMinutes;
+                    print($"Squad {squad.data.name} moved from {squad.Location.Data} to {to.Data} at {startTime.ToString("yyyy/MM/dd HH:mm:ss")} to {endTimeText}, duration {timeDurationText} min\n" +
+                        $"RealTime: {(DateTime.Now - startRealTime).TotalSeconds}");
+                    squad.Location = to;
+                }
+                else
+                {
+                    print(squad.data.name + " is not complete to move");
+                }
                 gameManager.Speed = 1;
-                squad.Location = to;
+                
                 onComplete?.Invoke();
             }));
             
@@ -688,52 +713,105 @@ namespace MainMap
     /// <summary>
     /// エンカウント内容をEventArgsとして送るための
     /// </summary>
+    [Serializable]
     public class ReachedEventArgs : EventArgs
     {
         /// <summary>
         /// エンカウントした場所のID ここからTactics画面のIDへと行く
         /// </summary>
-        public string TacticsSceneID { get => Enemy.tacticsSceneID; }
+        public string TacticsSceneID;
         /// <summary>
-        /// エンカウントしたときのPlayerの開始Tile位置
+        /// エンカウントしたときのPlayerのSquadID
         /// </summary>
-        public List<string> PlayerPositions { get => Enemy.playerTileIDs; }
+        public string PlayerSquadID;
         /// <summary>
-        /// エンカウントした自軍
+        /// エンカウント下のMapLocationのID
         /// </summary>
-        public Squad Player;
-        /// <summary>
-        /// エンカウントした敵軍
-        /// </summary>
-        public SpawnSquadData Enemy;
-        /// <summary>
-        /// 位置
-        /// </summary>
-        public MapLocation MapLocation;
-
+        public string MapLocationID;
         /// <summary>
         /// エンカウントした日時
         /// </summary>
-        public DateTime DateTime;
-
+        public SerializableDateTime ReachedDateTime;
         /// <summary>
-        /// エンカウントが発生した場合true
+        /// エンカウントした場所のSpawnRequestData、エンカウントしなかった場合null
         /// </summary>
-        public bool Encounted { get => Enemy != null; }
+        public SpawnRequestArgs SpawnRequestData;
         /// <summary>
         /// 指定した場所に到着した場合 true 経由地ならfalse
         /// </summary>
         public bool ReachedAtLocation = false;
 
         /// <summary>
-        /// Tpsのシーンでの環境による視界不良での目視距離の減衰係数
+        /// エンカウントが発生した場合true
         /// </summary>
-        public float VisibilityCoefficient = 1;
+        public bool Encountered { get => SpawnRequestData != null; }
+        /// <summary>
+        /// エンカウントした敵軍のID
+        /// </summary>
+        public string SpawnSquadID { get => Enemy.ID; }
+
+
+        /// <summary>
+        /// エンカウントした自軍
+        /// </summary>
+        public Squad Player
+        {
+            get
+            {
+                if (player == null)
+                    if (!GameManager.Instance.DataSavingController.MyArmyData.GetSquadFromID(PlayerSquadID, out player))
+                        PrintError($"Can't find PlayerSquad from ID {PlayerSquadID}");
+                return player;
+            }
+            set
+            {
+                player = value;
+                PlayerSquadID = value.ID;
+            }
+        }
+        [NonSerialized] private Squad player;
+
+        /// <summary>
+        /// エンカウントした敵軍
+        /// </summary>
+        public SpawnSquadData Enemy
+        {
+            get
+            {
+                // ゲームの難易度設定によって出る敵のレベルが変わる
+                var enemyLevel = SpawnRequestData.Level + GameManager.Instance.GameDifficulty.GetHashCode();
+                if (enemyLevel < 0)
+                    enemyLevel = 0;
+
+                if (enemy == null)
+                     GameManager.Instance.StaticData.AllSpawnSquads.GetSpawnSquadFromID(SpawnSquadID, enemyLevel, out enemy);
+                if (enemy == null)
+                    PrintError($"Can't find EnemySquad from ID {SpawnSquadID}");
+                return enemy;
+
+            }
+            set { Enemy = value; }
+        }
+        [NonSerialized] private SpawnSquadData enemy;
+
+        public ReachedEventArgs()
+        {
+        }
+
+        public ReachedEventArgs(Squad player, SpawnRequestArgs spawnRequestData, string locationID, DateTime reachedTime, string defaultTacticsSceneID)
+        {
+            Player = player;
+            SpawnRequestData = spawnRequestData;
+            ReachedDateTime = reachedTime;
+            MapLocationID = locationID;
+            if (spawnRequestData != null)
+                TacticsSceneID = spawnRequestData.SpecificTacticsSceneID.Length != 0 ? spawnRequestData.SpecificTacticsSceneID : defaultTacticsSceneID;
+        }
 
         public override string ToString()
         {
-            return Enemy == null ? $"ReachedEventArgs: ({Player}) reaches at ({MapLocation})" : 
-                                   $"ReachedEventArgs: ({Player}) reaches at ({MapLocation}) \n,and encounts ({Enemy})";
+            return Enemy == null ? $"ReachedEventArgs: ({Player}) reaches at ({MapLocationID})" : 
+                                   $"ReachedEventArgs: ({Player}) reaches at ({MapLocationID}) \n,and encounts ({Enemy})";
         }
     }
 }

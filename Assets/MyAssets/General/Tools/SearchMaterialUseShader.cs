@@ -6,8 +6,8 @@ using System.Linq;
 
 public class SearchMaterialUseShader : EditorWindow
 {
-	const string menuItemName = "Assets/Find/shader <- material";
-	[MenuItem(menuItemName, false, 53)]
+	const string MENU_ITEM_NAME = "Assets/Find/shader <- material";
+	[MenuItem(MENU_ITEM_NAME, false, 53)]
 	static void Init()
 	{
 		var window = SearchMaterialUseShader.CreateInstance<SearchMaterialUseShader>();
@@ -16,7 +16,7 @@ public class SearchMaterialUseShader : EditorWindow
 		window.Show();
 	}
 
-	[MenuItem(menuItemName, true)]
+	[MenuItem(MENU_ITEM_NAME, true)]
 	static bool ValidateLogSelectedTransformName()
 	{
 		if (Selection.activeObject == null)

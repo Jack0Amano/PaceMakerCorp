@@ -45,11 +45,11 @@ namespace EventGraph.Nodes.Trigger
 
         public override void Load(NodeData data)
         {
-            data.raw.GetFromPairs<string>(TimingTriggerKey, out var trigger);
+            data.Raw.GetFromPairs<string>(TimingTriggerKey, out var trigger);
             if (((TriggerTiming[])Enum.GetValues(typeof(TriggerTiming))).ToList().TryFindFirst(t => t.ToString() == trigger, out var type))
                 EnumField.value = type;
 
-            if(data.raw.GetFromPairs<string>(SpawnIDKey, out var id))
+            if(data.Raw.GetFromPairs<string>(SpawnIDKey, out var id))
                 SpawnIDField.value = id;
 
             base.Load(data);
@@ -59,9 +59,9 @@ namespace EventGraph.Nodes.Trigger
         {
             var node = base.Save();
             var trigger = (TriggerTiming)EnumField.value;
-            node.raw.SetToPairs(TimingTriggerKey, trigger.ToString());
+            node.Raw.SetToPairs(TimingTriggerKey, trigger.ToString());
 
-            node.raw.SetToPairs(SpawnIDKey, SpawnIDField.value);
+            node.Raw.SetToPairs(SpawnIDKey, SpawnIDField.value);
             
             return node;
         }
@@ -75,9 +75,9 @@ namespace EventGraph.Nodes.Trigger
 
         public override bool Check(EventInput input)
         {
-            if (SpawnIDField.value.Length == 0 && input.triggerTiming == (TriggerTiming)EnumField.value)
+            if (SpawnIDField.value.Length == 0 && input.TriggerTiming == (TriggerTiming)EnumField.value)
                 return true;
-            if (SpawnIDField.value == input.encountSpawnID && input.triggerTiming == (TriggerTiming)EnumField.value)
+            if (SpawnIDField.value == input.EncountSpawnID && input.TriggerTiming == (TriggerTiming)EnumField.value)
                 return true;
             return false;
         }

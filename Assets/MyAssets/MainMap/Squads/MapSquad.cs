@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using UnityEngine.UI;
 using static Utility;
+using Unity.VisualScripting;
 
 namespace MainMap
 {
@@ -34,11 +35,11 @@ namespace MainMap
         /// <summary>
         /// Squadが移動する際のアニメーションSquad
         /// </summary>
-        internal Sequence moveSequence;
+        internal DG.Tweening.Sequence moveSequence;
         /// <summary>
-        /// MoveAnimationが終わったときのSequence
+        /// MoveAnimationが終わったときのSequence 返り値のboolは移動が完了したかどうか falseなら途中でキャンセルされた
         /// </summary>
-        private Action onCompleteMoveSequence;
+        private Action<bool> onCompleteMoveSequence;
         /// <summary>
         /// Squadが移動するpath
         /// </summary>
@@ -46,7 +47,7 @@ namespace MainMap
         /// <summary>
         /// SquadがSpawnpointに到達したときの呼び出し
         /// </summary>
-        internal Action<MapLocation, MapSquad> squadReachedOnSpawnPoint;
+        internal Action<MapLocation, MapSquad> squadReachedOnLocation;
         /// <summary>
         /// SquadがSpawnPointの付近から入ったり出た場合の呼び出し ＜位置, 対象Squad, 近づいた場合＞
         /// </summary>
@@ -84,11 +85,7 @@ namespace MainMap
         /// <summary>
         /// SpawnPointに接近しているか
         /// </summary>
-        public bool IsNearToSpawnPoint { private set; get; } = true;
-        /// <summary>
-        /// SquadがSpawnPoint上にいるときそのID リアルタイムで更新されていく
-        /// </summary>
-        public string IdOfLocateOnSpawnPoint { private set; get; } = "";
+        public bool IsNearToLocation { private set; get; } = true;
         /// <summary>
         /// Squadが
         /// </summary>
@@ -319,7 +316,7 @@ namespace MainMap
         /// <param name="location"></param>
         /// <param name="onComplete"></param>
         /// <returns></returns>
-        internal IEnumerator MoveAlong(List<Vector3> checkPoints, MapLocation moveTo, Action onComplete = null)
+        internal IEnumerator MoveAlong(List<Vector3> checkPoints, MapLocation moveTo, Action<bool> onComplete = null)
         {
 
             bool isMoveCompleted = false;
@@ -349,46 +346,49 @@ namespace MainMap
             SquadState = State.Walking;
             moveSequence.Play();
             
-            var isOnSpawnPoint = false;
+            var isOnLocation = false;
             while (!isMoveCompleted)
             {
+                if (this.IsDestroyed())
+                    yield break;
+                
                 // 移動中のSquadが敵のスポーン位置にいるかどうか監視
                 foreach(var l in mapLocations.locations)
                 {
-                    var distToSpawnPoint = Vector3.Distance(transform.position, l.transform.position);
-                    if (distToSpawnPoint < parameter.DistanceOfLocatedOnSpawnPoint)
+                    // SquadがLocationの上にいるかどうか
+                    var distToLocation = Vector3.Distance(transform.position, l.transform.position);
+                    if (distToLocation < parameter.DistanceOfLocatedOnLocation)
                     {
-                        isOnSpawnPoint = true;
-                        if (IdOfLocateOnSpawnPoint != l.id)
+                        isOnLocation = true;
+                        if (Location != l)
                         {
-                            IdOfLocateOnSpawnPoint = l.id;
-                            squadReachedOnSpawnPoint?.Invoke(l, this);
+                            Location = l;
+                            squadReachedOnLocation?.Invoke(l, this);
                         }
                         break;
                     }
-                    var isOnNearPosition = distToSpawnPoint < parameter.NearDistanceOfLocatedOnSpawnPoint;
-                    if (isOnNearPosition != IsNearToSpawnPoint && (DateTime.Now - previousGetNearDateTime).TotalSeconds > getNearIntervalTime)
+                    // SpawnPointの近くにいるかどうか
+                    var isOnNearLocation = distToLocation < parameter.NearDistanceOfLocatedOnLocation;
+                    if (isOnNearLocation != IsNearToLocation && (DateTime.Now - previousGetNearDateTime).TotalSeconds > getNearIntervalTime)
                     {
                         previousGetNearDateTime = DateTime.Now;
-                        if (isOnNearPosition && !IsNearToSpawnPoint)
+                        if (isOnNearLocation && !IsNearToLocation)
                         {
                             // 近づいていった場合
                             squadGetsNearToSpawnPoint?.Invoke(l, this, true);
-
-
                         }
-                        else if (!isOnNearPosition && IsNearToSpawnPoint)
+                        else if (!isOnNearLocation && IsNearToLocation)
                         {
                             // 遠ざかっていった場合
                             squadGetsNearToSpawnPoint?.Invoke(l, this, false);
                         }
-                        IsNearToSpawnPoint = isOnNearPosition;
+                        IsNearToLocation = isOnNearLocation;
                     }
 
                 }
-                if (!isOnSpawnPoint)
+                if (!isOnLocation)
                 {
-                    IdOfLocateOnSpawnPoint = "";
+                    Location = null;
                 }
                 moveSequence.timeScale = gameManager.Speed;
                 UpdateCanvasImagePosition();
@@ -397,14 +397,14 @@ namespace MainMap
             }
 
             // SquadReachedOnSpawnPointが呼ばれる前に移動が終了した場合
-            if (IdOfLocateOnSpawnPoint != moveTo.id)
+            if (Location != moveTo)
             {
-                squadReachedOnSpawnPoint?.Invoke(moveTo, this);
+                squadReachedOnLocation?.Invoke(moveTo, this);
             }
 
             SquadState = State.Waiting;
             onCompleteMoveSequence = null;
-            onComplete?.Invoke();
+            onComplete?.Invoke(isOnLocation);
         }
 
         /// <summary>
@@ -414,7 +414,7 @@ namespace MainMap
         {
             if (SquadState == State.Waiting) return;
             moveSequence.Kill();
-            onCompleteMoveSequence?.Invoke();
+            onCompleteMoveSequence?.Invoke(false);
         }
 
         /// <summary>

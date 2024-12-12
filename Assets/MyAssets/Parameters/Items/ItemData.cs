@@ -50,9 +50,6 @@ public class OwnItem
             return itemData;
         }
     }
-    /// <summary>
-    /// Equipmentの実Class
-    /// </summary>
     [NonSerialized]
     private ItemData itemData;
 
@@ -80,6 +77,8 @@ public class OwnItem
     {
         this.Id = itemData.ID;
         this.itemData = itemData;
+        FreeCount = 1;
+        TotalCount = 1;
     }
 
     public OwnItem(OwnItem ownItem)
@@ -116,18 +115,22 @@ public class ItemData
     /// <summary>
     /// 攻撃力
     /// </summary>
+    [Tooltip("攻撃力")]
     public int Attack = 0;
     /// <summary>
     /// 守備力
     /// </summary>
+    [Tooltip("追加守備力")]
     public int Defence = 0;
     /// <summary>
     /// 有効射程 Grenadeの場合加害半径
     /// </summary>
+    [Tooltip("有効射程 Grenadeの場合加害半径")]
     public float Range = 0;
     /// <summary>
     /// 装備時の追加物資 
     /// </summary>
+    [Tooltip("装備時の追加物資")]
     public int Supply = 0;
     /// <summary>
     /// 出撃時の消費コスト

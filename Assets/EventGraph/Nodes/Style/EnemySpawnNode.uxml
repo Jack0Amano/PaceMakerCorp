@@ -1,3 +1,19 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3160e501dfcb706169d4ebf2fbe6ef3efd854aa6c571541f4c1e653c0bc2e6a4
-size 1112
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:GroupBox name="SpawnEnemy" style="height: 461px; padding-left: 0; margin-top: 2px; max-height: 205px; min-height: 205px;">
+        <ui:Label text="Spawn Squad ID" display-tooltip-when-elided="true" name="Label" style="font-size: 10px; padding-top: 5px; height: auto; -unity-text-align: lower-left;" />
+        <ui:TextField picking-mode="Ignore" readonly="false" name="SpawnSquadIDField" style="width: auto; margin-left: 0; margin-right: 0; height: auto; max-height: none;" />
+        <ui:Label text="Location ID" display-tooltip-when-elided="true" name="Label" style="font-size: 10px; padding-top: 5px; height: auto; -unity-text-align: lower-left;" />
+        <ui:TextField picking-mode="Ignore" readonly="false" name="LocationIDField" style="width: auto; margin-left: 0; margin-right: 0;" />
+        <ui:Label text="Tactics Scene ID" display-tooltip-when-elided="true" name="Label" style="font-size: 10px; padding-top: 5px; height: auto; -unity-text-align: lower-left;" />
+        <ui:TextField picking-mode="Ignore" readonly="false" name="TacticsSceneIDField" style="width: auto; margin-left: 0; margin-right: 0;" />
+        <ui:Label text="Start Position" display-tooltip-when-elided="true" name="Label" style="font-size: 10px; padding-top: 5px; height: auto; -unity-text-align: flex-start;" />
+        <ui:EnumField type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" value="Center" name="StartPositionField" />
+        <ui:Label text="Enemy Level" display-tooltip-when-elided="true" name="Label" style="font-size: 10px; padding-top: 5px; height: auto; -unity-text-align: lower-left;" />
+        <ui:IntegerField value="42" name="LevelField" />
+        <ui:Label tabindex="-1" text="Is necessary for event" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Label" style="align-self: auto; justify-content: center; align-items: flex-end; flex-direction: column; height: 23px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;">
+            <ui:Toggle name="IsNecessary" style="align-items: center; justify-content: flex-start; align-self: auto; width: 23px; flex-direction: column; height: 23px;" />
+        </ui:Label>
+        <ui:Label tabindex="-1" text="Spawn priority" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PriorityLabel" />
+        <ui:SliderInt picking-mode="Ignore" value="10" high-value="10" name="Priority" />
+    </ui:GroupBox>
+</ui:UXML>

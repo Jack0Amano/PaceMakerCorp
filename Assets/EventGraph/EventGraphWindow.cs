@@ -7,6 +7,15 @@ using System.IO;
 using System.Reflection;
 using UnityEditor.ShortcutManagement;
 using System.Linq;
+using Unity.VisualScripting.FullSerializer;
+using PopupWindow = UnityEditor.PopupWindow;
+using static Utility;
+using UnityEditor.Experimental.GraphView;
+using UnityEditor.Build.Content;
+using Unity.Logging.Sinks;
+using Unity.VisualScripting;
+using MouseButton = UnityEngine.UIElements.MouseButton;
+using AIGraph;
 
 namespace EventGraph
 {
@@ -15,9 +24,16 @@ namespace EventGraph
         /// <summary>
         /// Graphのパス
         /// </summary>
-        public string path;
+        public string Path;
 
-        public EventGraphView graphView;
+        public EventGraphView GraphView;
+
+        TextField gUIDTextField;
+
+        /// <summary>
+        /// DescriptionPopupが表示されているかどうか
+        /// </summary>
+        public bool IsDescriptionPopupOpen;
 
         [MenuItem("Window/EventGraph")]
         static void Init()
@@ -47,7 +63,12 @@ namespace EventGraph
             using (new EditorGUI.DisabledScope(!hasUnsavedChanges))
             {
                 if (GUILayout.Button("Save"))
+                {
                     SaveChanges();
+                    EditorWindow.GetWindow(typeof(EventGraphWindow)).Close();
+                    EditorWindow.GetWindow(typeof(EventGraphWindow)).Show();
+                }
+                    
 
                 if (GUILayout.Button("Discard"))
                     DiscardChanges();
@@ -70,28 +91,32 @@ namespace EventGraph
         {
             //hasUnsavedChanges = true;
 
-            graphView = new EventGraphView()
+            GraphView = new EventGraphView()
             {
                 style = { flexGrow = 1 },
             };
+            GraphView.graphWindow = this;
             
-            graphView.graphViewChanged += ((arg) =>
+            GraphView.graphViewChanged += ((arg) =>
             {
                 hasUnsavedChanges = true;
                 return arg;
             });
 
-            if (File.Exists(path))
+            if (File.Exists(Path))
             {
-                Editor.EventGraphSaveUtility.LoadGraph(path, graphView);
+                Editor.EventGraphSaveUtility.LoadGraph(Path, GraphView);
             }
-            rootVisualElement.Add(graphView);
+            rootVisualElement.Add(GraphView);
 
             // 実行ボタン]
-            rootVisualElement.Add(new Button(TestExecute) { text = "Execute" });
+            if (gUIDTextField == null)
+                gUIDTextField = new TextField("GUID") { value = "GUID"};
+            rootVisualElement.Add(gUIDTextField);
+            rootVisualElement.Add(new Button(SearchNodesByGUID) { text = "Search" });
 
             // Ctrl+Sキーで保存するショートカットキー
-            graphView.RegisterCallback<KeyDownEvent>(evt =>
+            GraphView.RegisterCallback<KeyDownEvent>(evt =>
             {
                if (evt.actionKey && evt.keyCode == KeyCode.S)
                {
@@ -100,30 +125,30 @@ namespace EventGraph
             });
 
             // 右クリックでメニューを出してSearchWindowProviderからNodeを作成する際に右クリックした位置にNodeを作れるようにするためのCallback
-            graphView.RegisterCallback<MouseDownEvent>(evt =>
+            GraphView.RegisterCallback<MouseDownEvent>(evt =>
             {
                 if (evt.button == MouseButton.RightMouse.GetHashCode())
                 {
-                    graphView.searchWindowProvider.rightClickPosition = graphView.viewTransform.matrix.inverse.MultiplyPoint(evt.localMousePosition);
+                    GraphView.searchWindowProvider.rightClickPosition = GraphView.viewTransform.matrix.inverse.MultiplyPoint(evt.localMousePosition);
                 }
             });
 
             // SearchWindowProviderでNodeを作成した際にセーブ状態をfalseにする仕組み
-            graphView.nodeCreationRequest += ((ct) =>
+            GraphView.nodeCreationRequest += ((ct) =>
             {
                 hasUnsavedChanges = true;
             });
 
-            graphView.searchWindowProvider.AddElementAction = AddElementFromProvider;
+            GraphView.searchWindowProvider.AddElementAction = AddElementFromProvider;
 
             // ScriptからOnEnableした場合でもcallbackを復帰できるように
-            var nodes = graphView.nodes.ToList().Cast<SampleNode>().ToList();
+            var nodes = GraphView.nodes.ToList().Cast<SampleNode>().ToList();
             nodes.ForEach(n =>
             {
                 n.RegisterAnyValueChanged(NodeValueChanged);
 
                 if (n is RootNode root)
-                    graphView.RootNode = root;
+                    GraphView.RootNode = root;
             });
 
            
@@ -133,7 +158,7 @@ namespace EventGraph
         {
             //Debug.Log("Destroy and refresh");
             AssetDatabase.Refresh();
-            Editor.EventGraphSaveUtility.SaveWindowInfo(graphView);
+            Editor.EventGraphSaveUtility.SaveWindowInfo(GraphView);
         }
 
         /// <summary>
@@ -144,7 +169,7 @@ namespace EventGraph
             if (!hasUnsavedChanges)
                 return;
             
-            var dataIsSaved = Editor.EventGraphSaveUtility.SaveGraph(graphView);
+            var dataIsSaved = Editor.EventGraphSaveUtility.SaveGraph(GraphView);
             hasUnsavedChanges = !dataIsSaved;
         }
 
@@ -153,18 +178,18 @@ namespace EventGraph
         /// </summary>
         public void Load()
         {
-            if (File.Exists(path))
+            if (File.Exists(Path))
             {
-                Editor.EventGraphSaveUtility.LoadGraph(path, graphView);
+                Editor.EventGraphSaveUtility.LoadGraph(Path, GraphView);
             }
 
-            var nodes = graphView.nodes.ToList().Cast<SampleNode>().ToList();
+            var nodes = GraphView.nodes.ToList().Cast<SampleNode>().ToList();
             nodes.ForEach(n =>
             {
                 n.RegisterAnyValueChanged(NodeValueChanged);
 
                 if (n is RootNode root)
-                    graphView.RootNode = root;
+                    GraphView.RootNode = root;
             });
         }
 
@@ -203,10 +228,55 @@ namespace EventGraph
         }
 
         /// <summary>
+        /// Nodeの説明Popupを表示
+        /// </summary>
+        internal void ShowNodeDescription(SampleNode node)
+        {
+            var content = new DescriptionPopup(node);
+            content.OnOpenListener += () =>
+            {
+                IsDescriptionPopupOpen = true;
+            };
+            content.OnCloseListener += () =>
+            {
+                IsDescriptionPopupOpen = false;
+            };
+            UnityEditor.PopupWindow.Show(node.worldBound, content);
+        }
+
+        /// <summary>
         /// テスト用のWindowを出して実行
         /// </summary>
         private void TestExecute()
         {
+        }
+
+        // EventGraphWindowクラス内のOpenメソッド内に追加
+        private void SearchNodesByGUID()
+        {
+            var guid = gUIDTextField.value;
+            if (guid.Length == 0)
+            {
+                PrintWarning("GUID is empty");
+                return;
+            }
+            Print("SearchNodeByGUID", guid);
+            // グラフ内のすべてのノードを取得
+            var nodes = GraphView.graphElements.ToList();
+
+            // GUIDを検索して一致するノードを表示するUIを作成
+            var node = nodes.FirstOrDefault(n => n is SampleNode baseNode && baseNode.Guid == guid);
+            if (node != null)
+            {
+                // ノードを表示するUIを作成する処理
+                // 例えば、Debug.Logでノードの情報を表示するなど
+                Debug.Log($"Node found: {node}");
+                node.selected = true;
+            }
+            else
+            {
+                PrintWarning("Node not found");
+            }
         }
     }
 }

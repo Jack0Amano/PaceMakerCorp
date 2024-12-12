@@ -15,6 +15,7 @@ using System.Net;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using Parameters.MapData;
+using IngameDebugConsole;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
@@ -22,7 +23,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] private SerializableDateTime SceneTime;
     [Tooltip("割り込み型のストーリーイベントを管理する")]
     [SerializeField] public EventScene.EventSceneController EventSceneController;
-    [SerializeField] public DebugController debugController;
     [SerializeField] public StartUI.StartCanvasController StartCanvasController;
     [Tooltip("ロード中に表示するPanelのcanvas")]
     [SerializeField] public FadeInOutCanvas FadeInOutCanvas;
@@ -32,6 +32,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [SerializeField] public float Speed = 1;
     [Tooltip("Gameがどのような状態であるか")]
     [SerializeField, ReadOnly] public GameState GameState = GameState.Start;
+    [Tooltip("DebugLogManagerを参照するためのフィールド")]
+    [SerializeField] public DebugLogManager DebugLogManager;
+    [SerializeField, ReadOnly] SimulationMode physicsSimulationMode;
+
+    public const float ANIMATION_DURATION = 0.5f;
 
     public SceneParameter SceneParameter;
 
@@ -58,7 +63,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// <summary>
     /// MapSceneでエンカウントしたときの敵味方の情報 Mapからtacticsに移動する時に使用
     /// </summary>
-    public MainMap.ReachedEventArgs Encounter;
+    public ReachedEventArgs ReachedEventArgs
+    {
+        get => DataSavingController.SaveData.ReachedEventArgs;
+        set => DataSavingController.SaveData.ReachedEventArgs = value;
+    }
 
     private readonly string mapSceneID = "Map";
     private readonly string prepareSceneID = "Prepare";
@@ -155,6 +164,29 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     [SerializeField, ReadOnly] public bool HasDataLoaded = false;
 
+    /// <summary>
+    /// 前回AutoSaveした時間
+    /// </summary>
+    private DateTime previousAutoSaveTime;
+
+    /// <summary>
+    /// MainMapのカメラ
+    /// </summary>
+    public Camera MainMapCamera;
+
+    /// <summary>
+    /// MainMapカメラのAudioListener
+    /// </summary>
+    public AudioListener MainMapAudioListener;
+
+    /// <summary>
+    /// Gameの難易度
+    /// </summary>
+    public GameDifficulty GameDifficulty
+    {
+        get => DataSavingController.SaveData.DataInfo.GameDifficulty;
+    }
+
     #region Init
     protected override void Awake()
     {
@@ -167,6 +199,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         if (!EventSceneController.gameObject.activeSelf)
             EventSceneController.gameObject.SetActive(true);
+
+        previousAutoSaveTime = DateTime.Now;
+
+        MainMapCamera = Camera.main;
+        MainMapAudioListener = MainMapCamera.GetComponent<AudioListener>();
+
+        EventSceneController.MainMapScene = MainMapScene;
     }
 
     // Start is called before the first frame update
@@ -179,20 +218,33 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private void Update()
     {
+        physicsSimulationMode = Physics.simulationMode;
+
         if (UserController.KeyCodeSetting && !IsLoading && !(GameState == GameState.Start || GameState == GameState.Event))
         {
             if (GameState == GameState.MainMap)
             {
                 // MainMapの場合のStartUIの表示
                 if (!StartCanvasController.IsEnable)
+                {
                     StartCanvasController.Show(StartUI.StartPosition.NearTable, true);
+                }
                 else
+                {
                     StartCoroutine(StartCanvasController.Hide());
+                }
+                    
             }
             else if (GameState == GameState.Tactics)
             {
 
             }
+        }
+
+        // QuickSaveボタンによるセーブ
+        if (UserController.QuickSave && GameState != GameState.Start && !IsLoading)
+        {
+            QuickSave();
         }
     }
 
@@ -225,10 +277,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     #region Timer on game
     public bool IsTimerStoppingOnGame()
     {
-        return IsTimerStopping ||
-               StartCanvasController.IsEnable ||
-               EventSceneController.IsEventWindowActive ||
-               Encounter != null;
+        if (IsTimerStopping)
+            return true;
+        if (StartCanvasController.IsEnable)
+            return true;
+        if (EventSceneController.IsEventWindowActive)
+            return true;
+        if (DataSavingController.SaveData.HasTacticsData)
+            return true;
+        return false;
     }
 
     /// <summary>
@@ -285,6 +342,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
             SceneTime = GameTime;
             StartCoroutine(EventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.PassTime));
+            AutoSave();
             AddTimeEventHandlerSync?.Invoke(this, addTime);
             StartCoroutine(AsyncCall(now));
         }
@@ -311,6 +369,54 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     #region Load and save system
     /// <summary>
+    /// クイックセーブを行う
+    /// </summary>
+    /// <param name="fileName">セーブファイルの名前</param>
+    /// <param name="reachedEventArgs">保存する場合はエンカウントした敵と味方の内容を保持する</param>
+    public void QuickSave(string fileName = "QuickSave", ReachedEventArgs reachedEventArgs=null)
+    {
+
+        if (GameState == GameState.MainMap)
+        {
+            if (MainMapScene.IsTempSave)
+            {
+                var isSaved = DataSavingController.SaveFromTemp(fileName);
+                if (isSaved)
+                {
+                    Print("QuickSave is saved from temp data at", DataSavingController.TempSaveData.DataInfo.GameTime);
+                }
+                else
+                {
+                    PrintError("Failed to save QuickSave");
+                }
+            }
+            else
+            {
+                DataSavingController.Save(DataSavingController.MakeSavePath(fileName), reachedEventArgs);
+            }
+        }
+        else
+        {
+            DataSavingController.Save(DataSavingController.MakeSavePath(fileName), reachedEventArgs);
+        }
+    }
+
+    /// <summary>
+    /// 前回のAutoSaveから一定時間経過している場合AutoSaveを行う
+    /// </summary>
+    private void AutoSave()
+    {
+        if (StaticData.CommonSetting.AutoSaveIntervalMinutes == 0)
+            return;
+        var now = DateTime.Now;
+        if ((now - previousAutoSaveTime).TotalMinutes > StaticData.CommonSetting.AutoSaveIntervalMinutes)
+        {
+            QuickSave("AutoSave");
+            previousAutoSaveTime = now;
+        }
+    }
+
+    /// <summary>
     /// 選択したデータを読み込む
     /// </summary>
     public IEnumerator LoadData(SaveData data)
@@ -333,14 +439,101 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         var storiesPath = Path.Combine(StaticDataRootPath, data.DataInfo.MainMapSceneName, "Story");
         EventSceneController.LoadStories(storiesPath);
         Translation.LoadFromGameSceneName(data.DataInfo.MainMapSceneName);
+
+        var mainMapSceneIsActive = MainMapScene.gameObject.activeSelf;
+        MainMapScene.gameObject.SetActive(true);
+
         yield return StartCoroutine(MainMapScene.LoadMap(data.DataInfo.MainMapSceneName));
 
         GameTime = DataSavingController.SaveDataInfo.GameTime;
 
         data.CheckData();
 
-        IsLoading = false;
-        GameState = GameState.MainMap;
+
+        if (GameState == GameState.Start)
+        {
+            // Start画面からMainMapに遷移する場合
+            GameState = GameState.MainMap;
+        }
+        else if (GameState == GameState.MainMap)
+        {
+            // MainMapのときにLoadを行った場合
+            if (DataSavingController.SaveData.HasTacticsData)
+            {
+                // Tacticsのデータが存在する場合MainMapからTacticsに遷移する
+                yield return StartCoroutine(MainMapScene.TransitToTacticsScene(ReachedEventArgs));
+            }
+            else
+            {
+                // Tacticsのデータが存在しない場合はMainMapに戻る
+                GameState = GameState.MainMap;
+            }
+        }
+        else if (GameState == GameState.Tactics)
+        {
+            // Tactics画面でLoadを行った場合
+            if (DataSavingController.SaveData.HasTacticsData)
+            {
+                // Tacticsのデータが存在する場合はTacticsを初期化する
+
+            }
+            else
+            {
+                // Tacticsのデータが存在しない場合はMainMapに戻る
+            }
+        }
+    }
+
+    /// <summary>
+    /// TacticsSceneからLoadDataを行った時の処理 既存のTacticsSceneを破棄し新しいデータをロードする
+    /// </summary>
+    public void LoadDataFromTacticsScene(SaveData data)
+    {
+        if (GameState != GameState.Tactics)
+        {
+            PrintError("LoadDataFromTacticsScene is called but GameState is not Tactics");
+        }
+
+        IEnumerator LoadDataFromTacticsScenAsync()
+        {
+            IsLoading = true;
+            yield return StartCoroutine(FadeInOutCanvas.Show(ANIMATION_DURATION));
+            MainMapScene.OnDestroyMap();
+            ResetMap();
+
+            StaticData.LoadStaticSceneData(data.DataInfo.MainMapSceneName);
+            DataSavingController.Load(data);
+            var storiesPath = Path.Combine(StaticDataRootPath, data.DataInfo.MainMapSceneName, "Story");
+            EventSceneController.LoadStories(storiesPath);
+            Translation.LoadFromGameSceneName(data.DataInfo.MainMapSceneName);
+
+            MainMapScene.gameObject.SetActive(true);
+
+            yield return StartCoroutine(MainMapScene.LoadMap(data.DataInfo.MainMapSceneName));
+
+            GameTime = DataSavingController.SaveDataInfo.GameTime;
+
+            data.CheckData();
+            MainMapCamera.enabled = true;
+            yield return StartCoroutine(UnloadScene(TacticsSceneID));
+            TacticsSceneID = null;
+
+            if (DataSavingController.SaveData.HasTacticsData)
+            {
+                // Tacticsのデータが存在する場合はTacticsを初期化する
+                yield return StartCoroutine(MainMapScene.TransitToTacticsScene(DataSavingController.SaveData.ReachedEventArgs));
+                MainMapCamera.enabled = false;
+            }
+            else
+            {
+                GameState = GameState.MainMap;
+                // Tacticsのデータが存在しない場合はMainMapに戻る
+                yield return StartCoroutine(FadeInOutCanvas.Hide());
+            }
+
+        }
+        StartCoroutine(LoadDataFromTacticsScenAsync());
+        
     }
 
 
@@ -368,7 +561,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         DataSavingController.NewSave();
 
-        IsLoading = false;
         GameState = GameState.MainMap;
     }
 
@@ -405,7 +597,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         GameTime = DataSavingController.SaveData.DataInfo.GameTime;
 
-        IsLoading = false;
         GameState = GameState.MainMap;
     }
     #endregion
@@ -476,7 +667,24 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         yield return StartCoroutine(FadeInOutCanvas.Show());
         this.TacticsSceneID = tacticsSceneID;
         GameState = GameState.Tactics;
+        MainMapAudioListener.enabled = false;
         yield return StartCoroutine(LoadScene(tacticsSceneID));
+        MainMapCamera.enabled = false;
+    }
+
+    /// <summary>
+    /// 現在表示中のTacticsSceneを破棄しもう一度同じTacticsSceneをLoadする
+    /// </summary>
+    public IEnumerator ReloadTacticsScene()
+    {
+        Speed = 1;
+        IsLoading = true;
+        yield return StartCoroutine(FadeInOutCanvas.Show());
+        MainMapCamera.enabled = true;
+        MainMapAudioListener.enabled = false;
+        yield return StartCoroutine(UnloadScene(TacticsSceneID));
+        yield return StartCoroutine(LoadScene(TacticsSceneID));
+        MainMapCamera.enabled = false;
     }
 
     /// <summary>
@@ -495,11 +703,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             DespawnEnemy = despawnEnemy,
             ReturnPlayer = returnPlayer,
-            EncounterEnemyID = Encounter.Enemy.encounmtSpawnID,
-            GameResult = gameResult
+            EnemyID = ReachedEventArgs.Enemy.ID,
+            GameResult = gameResult,
+            ReachedEventArgs = ReachedEventArgs
         });
-        this.Encounter = null;
+        this.ReachedEventArgs = null;
+        MainMapCamera.enabled = true;
         yield return StartCoroutine(UnloadScene(_tacticsSceneID));
+        MainMapAudioListener.enabled = true;
         GameState = GameState.MainMap;
     }
 
@@ -525,8 +736,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     public void NortifyCompleteToLoad(float delay = 0)
     {
-        if (!IsLoading) return;
-        StartCoroutine(FadeInOutCanvas.Hide(delay));
         IsLoading = false;
     }
     #endregion
@@ -703,11 +912,15 @@ public class BackToMainMapHandlerArgs : EventArgs
     /// <summary>
     /// Tacticsで戦闘を行ったEnemyの部隊ID
     /// </summary>
-    public string EncounterEnemyID;
+    public string EnemyID;
     /// <summary>
     /// Tacticsのゲーム結果
     /// </summary>
     public Tactics.VictoryConditions.GameResult GameResult;
+    /// <summary>
+    /// 戦闘を行った相手の情報
+    /// </summary>
+    public ReachedEventArgs ReachedEventArgs;
 }
 
 /// <summary>
@@ -716,7 +929,23 @@ public class BackToMainMapHandlerArgs : EventArgs
 public enum GameState
 {
     Start,
+    /// <summary>
+    /// 設定中
+    /// </summary>
+    Setting,
     MainMap,
     Tactics,
     Event
+}
+
+/// <summary>
+/// どの方角からスタートするか
+/// </summary>
+public enum StartPosition
+{
+    None,
+    North,
+    South,
+    East,
+    West,
 }

@@ -110,14 +110,14 @@ namespace EventScene.Message
                 yield break;
             }
 
-            for(var i=0; i<message.sentences.Count; i++)
+            for(var i=0; i<message.Sentences.Count; i++)
             {
-                var sentence = message.sentences[i];
+                var sentence = message.Sentences[i];
                 var isNextResponseSentence = false;
-                if (message.sentences.IndexAt_Bug(i + 1, out var next))
-                    isNextResponseSentence = next.isChoice;
+                if (message.Sentences.IndexAt_Bug(i + 1, out var next))
+                    isNextResponseSentence = next.IsChoice;
 
-                if (!sentence.isChoice)
+                if (!sentence.IsChoice)
                 {
                     // 前のSentenceが表示中で nextResponseButtonが押されていないため待ち
                     while (IsWaitingNextButtonAction)
@@ -151,9 +151,9 @@ namespace EventScene.Message
         /// <param name="sentence"></param>
         private void ShowSentence(MessageEventOutput.Sentence sentence, bool showResponse)
         {
-            messageLabel.SetText(sentence.text);
-            if (sentence.messageFrom.Length != 0)
-                messageFromLabel.SetText(sentence.messageFrom);
+            messageLabel.SetText(sentence.Text);
+            if (sentence.MessageFrom.Length != 0)
+                messageFromLabel.SetText(sentence.MessageFrom);
             if (showResponse)
                 nextResponse.Show();
             IsWaitingNextButtonAction = true;
@@ -171,7 +171,7 @@ namespace EventScene.Message
                 PrintWarning("ResponseButtons are Only 3");
                 return;
             }
-            responseButton.Show(sentence.text);
+            responseButton.Show(sentence.Text);
             IsWaitingNextButtonAction = true;
         }
 

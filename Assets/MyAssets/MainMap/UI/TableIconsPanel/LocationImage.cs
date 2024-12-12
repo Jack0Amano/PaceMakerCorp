@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using static Utility;
+using Unity.VisualScripting;
 
 namespace MainMap.UI.TableIcons
 {
@@ -26,13 +27,15 @@ namespace MainMap.UI.TableIcons
         /// </summary>
         public bool IsEnable
         {
-            get => _isEnable;
+            get => isEnable;
             set
             {
-                if (_isEnable == value)
+                if (isEnable == value)
                     return;
-                _isEnable = value;
-                if (_isEnable)
+                isEnable = value;
+                if (this.IsDestroyed())
+                    return;
+                if (isEnable)
                 {
                     IconImage.DOFade(1, 0.3f);
                     button.enabled = true;
@@ -44,7 +47,7 @@ namespace MainMap.UI.TableIcons
                 }
             }
         }
-        private bool _isEnable = true;
+        private bool isEnable = true;
 
         // Start is called before the first frame update
         void Start()

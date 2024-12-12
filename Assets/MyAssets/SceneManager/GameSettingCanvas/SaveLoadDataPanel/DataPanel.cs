@@ -26,14 +26,24 @@ namespace GameSetting.SaveLoadData
         internal GameSettingCanvas parentCanvas;
 
         ///<summary>
-        /// DataPanelからDataのLoadが行われた時に呼び出される
+        /// DataPanelからDataのLoadが開始された時
         /// </summary>
-        public event Action OnLoadData;
+        public event Action<SaveData> SelectSavedDataToLoad;
+
+        /// <summary>
+        /// DataPanelからDataのSaveが開始された時
+        /// </summary>
+        public event Action OnStartToSaveData;
 
         /// <summary>
         /// escキー等での画面遷移をロックする
         /// </summary>
         public bool IsKeyLocked { private set; get; } = true;
+
+        /// <summary>
+        /// データのロード中かセーブ中か
+        /// </summary>
+        [SerializeField, ReadOnly] public bool IsLoadingOrSaving = false;
 
         protected void Awake()
         {
@@ -52,7 +62,7 @@ namespace GameSetting.SaveLoadData
         /// 指定した内容を表示する
         /// </summary>
         /// <param name="type"></param>
-        internal void Show(GameSettingTab.GameSettingType type)
+        internal void Show(GameSettingTab.GameSettingType type, float duration = GameManager.ANIMATION_DURATION)
         {
             if(gameObject.activeSelf && type == this.Type)
                 return;
@@ -67,7 +77,7 @@ namespace GameSetting.SaveLoadData
                 canvasGroup.DOFade(0, animationDuration).OnComplete(() =>
                 {
                     dataBasicListAdapter.RetrieveDataAndUpdate();
-                    canvasGroup.DOFade(1, animationDuration);
+                    canvasGroup.DOFade(1,duration);
                 });
             }
             else
@@ -75,7 +85,7 @@ namespace GameSetting.SaveLoadData
                 canvasGroup.alpha = 0;
                 gameObject.SetActive(true);
                 // 新たに表示する
-                canvasGroup.DOFade(1, animationDuration);
+                canvasGroup.DOFade(1, duration);
                 dataBasicListAdapter.RetrieveDataAndUpdate();
             }
             
@@ -85,21 +95,32 @@ namespace GameSetting.SaveLoadData
         /// <summary>
         /// DataPanelを非表示にする
         /// </summary>
-        internal void Hide(bool animation)
+        internal void Hide(bool animation, float animationDuration = GameManager.ANIMATION_DURATION)
         {
             if (gameObject.activeSelf == false)
                 return;
 
-            IsKeyLocked = true;
             Type = GameSettingTab.GameSettingType.None;
-            gameObject.SetActive(false);
+            if (animation)
+            {
+                   canvasGroup.DOFade(0, animationDuration).OnComplete(() =>
+                   {
+                    IsKeyLocked = true;
+                    gameObject.SetActive(false);
+                });
+            }
+            else
+            {
+                IsKeyLocked = true;
+                gameObject.SetActive(false);
+            }
         }
 
         /// <summary>
         /// Cellが選択された
         /// </summary>
-        /// <param name="saveDataInfo"></param>
-        private void HolderSelected(SaveData saveDataInfo, string path)
+        /// <param name="saveData"></param>
+        private void HolderSelected(SaveData saveData, string path)
         {
             IsKeyLocked = true;
             var dialog = gameManager.EventSceneController.dialogEvent;
@@ -111,9 +132,8 @@ namespace GameSetting.SaveLoadData
                 windowInput.onHidden = ((win, r, o) =>
                 {
                     IsKeyLocked = false;
-                    print("Start to load");
                     if (r == EventScene.Dialog.Result.Yes)
-                        StartCoroutine(LoadData(saveDataInfo));
+                        SelectSavedDataToLoad?.Invoke(saveData);
                 });
             }
             else if (Type == GameSettingTab.GameSettingType.Save)
@@ -123,7 +143,7 @@ namespace GameSetting.SaveLoadData
                 {
                     IsKeyLocked = false;
                     if (r == EventScene.Dialog.Result.Yes)
-                        SaveData(path);
+                        StartCoroutine(SaveData(path));
                 });
             }
             else
@@ -134,39 +154,25 @@ namespace GameSetting.SaveLoadData
         }
 
         #region Load and Save
-        /// <summary>
-        /// 選択したデータを読み込む adapterのcellが選択された時に呼び出される
-        /// </summary>
-        private IEnumerator LoadData(SaveData data)
-        {
-            yield return gameManager.LoadData(data);
-            print("Completed LoadData");
-            if (gameManager.IsLoading)
-            {
-                // データの破損等で読み込みが不可能な時
-            }
-            else
-            {
-                OnLoadData?.Invoke();
-            }
-        }
 
         /// <summary>
         /// 選択した場所に現状のデータを上書きセーブする adapterのcellが選択された時に呼び出される
         /// </summary>
         /// <param name="data"></param>
-        private void SaveData(string path)
+        private IEnumerator SaveData(string path)
         {
             //TODO: 行の先端以外を選択して保存した時の挙動がおかしい
             var index = dataBasicListAdapter.SavedDatas.FindIndex((s) => s.path == path);
             if (index == -1)
-                return;
+                yield break;
+            IsLoadingOrSaving = true;
+            OnStartToSaveData?.Invoke();
             print("Save data to " + path);
             // Write story data on save
-            gameManager.EventSceneController.SaveStories();
             gameManager.DataSavingController.Save(path);
             dataBasicListAdapter.UpdateSaveDataInfos();
             dataBasicListAdapter.UpdateOn(index);
+            IsLoadingOrSaving = false;
         }
 
         /// <summary>

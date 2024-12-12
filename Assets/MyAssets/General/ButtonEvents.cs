@@ -12,12 +12,14 @@ public class ButtonEvents : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public Action<PointerEventData> onPointerEnter;
     public Action<PointerEventData> onPointerExit;
 
-    public Button Button;
-
-    private void Awake()
-    {
-        Button = GetComponent<Button>();
+    public Button Button 
+    { 
+        get
+        {
+            return button != null ? button : (button = GetComponent<Button>());
+        }
     }
+    private Button button;
 
     // this method called by mouse-pointer enter the object.
     public void OnPointerEnter(PointerEventData eventData)

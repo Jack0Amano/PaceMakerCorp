@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using EventGraph.InOut;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Tactics.Character;
@@ -6,9 +8,11 @@ using Tactics.Object;
 using Tactics.UI;
 using TMPro;
 using Unity.Logging;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using static Utility;
 
 namespace Tactics.Map
@@ -36,7 +40,7 @@ namespace Tactics.Map
         [SerializeField] internal GameObject DestructibleObjectsParent;
 
         [Tooltip("TacticsTablet")]
-        [SerializeField] TacticsTablet tacticsTablet;
+        [SerializeField] TacticsTablet.TacticsTablet tacticsTablet;
 
         [Tooltip("グリットポイントを生成しないAreaの親Object")]
         [SerializeField] private Transform removeLocationArea;
@@ -69,7 +73,10 @@ namespace Tactics.Map
 
         private List<GameObject> DestructibleObjects;
 
-        internal List<(GameObject parent, List<(Transform pos, TileCell tile)> values)>  WaysPassPoints;
+        internal List<(GameObject parent, List<(Transform pos, TileCell tile)> values)>  waysPassPoints;
+
+        // StartPositionから対応したCellを取得するためのDictionary
+        public Dictionary<StartPosition, List<TileCell>> StartTileDict = new Dictionary<StartPosition, List<TileCell>>();
 
         protected private void Awake()
         {
@@ -92,15 +99,22 @@ namespace Tactics.Map
             });
 
             // AIの経路ルーチンを指定
-            WaysPassPoints = new List<(GameObject parent, List<(Transform pos, TileCell tile)> values)>();
+            waysPassPoints = new List<(GameObject parent, List<(Transform pos, TileCell tile)> values)>();
             foreach (Transform ways in waysParent.transform)
             {
                 var pt = new List<(Transform, TileCell)>();
                 foreach (Transform passPoint in ways)
                     pt.Add((passPoint, null));
 
-                WaysPassPoints.Add((ways.gameObject, pt));
+                waysPassPoints.Add((ways.gameObject, pt));
             }
+
+            StartTileDict = Enum.GetValues(typeof(StartPosition)).Cast<StartPosition>().ToDictionary(s => s, s => {
+                var startTiles = Tiles.FindAll(t => t.StartPosition == s);
+                // Priorityの高い順にソート
+                startTiles.Sort((a, b) => a.spawnPriority.CompareTo(b.spawnPriority));
+                return startTiles;
+            });
         }
 
         // Start is called before the first frame update
@@ -172,7 +186,7 @@ namespace Tactics.Map
                 tile.SetGimmickObjects(gimmicksInTile);
 
                 // wayPassPointsを登録
-                WaysPassPoints.ForEach(w =>
+                waysPassPoints.ForEach(w =>
                 {
                     for(var i=0; i<w.values.Count; i++)
                     {
@@ -188,11 +202,11 @@ namespace Tactics.Map
             }
 
             // tileの検索が終わったwayspassPointsをUnitsControllerに送る
-            WaysPassPoints.ForEach(w =>
+            waysPassPoints.ForEach(w =>
             {
                 w.values.RemoveAll(p => p.tile == null);
             });
-            unitsController.WaysPassPoints = WaysPassPoints.ConvertAll(w => w.values);
+            unitsController.waysPassPoints = waysPassPoints.ConvertAll(w => w.values);
 
             // MeshによるLocationsAndScoresのinactive化が終了するまで待つ
             while (true)
@@ -236,6 +250,25 @@ namespace Tactics.Map
         {
             if (UnitCursor.gameObject.activeSelf && unitsController.activeUnit != null)
                 UnitCursor.transform.position = unitsController.activeUnit.gameObject.transform.position;
+        }
+
+
+        /// <summary>
+        /// Unitの開始位置をStartPositionから取得する
+        /// </summary>
+        public List<TileCell> GetStartTiles(StartPosition startPosition, bool isEnemy)
+        {
+            var startTiles = StartTileDict.GetValueOrDefault(startPosition);
+            if (startTiles == null || startTiles.Count == 0)
+            {
+                startTiles = StartTileDict[StartPosition.North];
+            }
+            if (startTiles.Count == 0)
+            {
+                PrintWarning($"TilesControllerに{startPosition}のStartTabletPositionが設定されていません。\n" +
+              $"Tactics開始位置のTileにStartTabletPositionを設定してください。");
+            }
+            return startTiles.FindAll(t => t.IsEnemyStartPosition == isEnemy);
         }
 
         /// <summary>

@@ -9,6 +9,8 @@ using System;
 using Cinemachine;
 using MainMap.UI.TableIcons;
 using static Utility;
+using EventGraph.InOut;
+using AmplifyShaderEditor;
 
 namespace MainMap
 {
@@ -44,14 +46,11 @@ namespace MainMap
         [Header("Child Components")]
         [SerializeField] internal MapSquads MapSquads;
         [SerializeField] internal Spawn.MapSpawns MapSpawns;
-
-        [SerializeField] UI.InfoPanel.SquadsInfoPanel SquadsInfoPanel;
-        [SerializeField] public UI.MainUIController MainUIController;
-        [SerializeField] MapUI.UI.InfoPanel.Calender calender;
         [SerializeField] internal MapLocations MapLocations;
 
-        [Header("Canvas")]
-        [SerializeField] TableIconsPanel TableIconsPanel;
+        [NonSerialized] public TableIconsPanel TableIconsPanel;
+        [NonSerialized] public UI.InfoPanel.SquadsInfoPanel SquadsInfoPanel;
+        [NonSerialized] public UI.MainUIController MainUIController;
 
         private new Camera camera;
 
@@ -82,7 +81,7 @@ namespace MainMap
         public static float MapScale { private set; get; }
         public static Vector3 MapPosition { private set; get; }
 
-        MainMapScene mainMapScene;
+        internal MainMapScene mainMapScene;
 
         private GameManager gameManager;
 
@@ -124,10 +123,8 @@ namespace MainMap
 
             MapSquads.MapLocations = MapLocations;
             MapSquads.MapSpawns = MapSpawns;
-            MapSquads.infoPanel = SquadsInfoPanel;
 
             gameManager.SceneParameter = GetComponent<SceneParameter>();
-            mainMapScene = transform.parent.GetComponent<MainMapScene>();
 
             // MapRayLayer = LayerMask.GetMask("TableMapRay");
 
@@ -142,6 +139,35 @@ namespace MainMap
             gameManager.EventSceneController.BeginEventHandler += BeginEventAction;
             gameManager.EventSceneController.EndEventHandler += EndEventAction;
 
+            gameManager.EventSceneController.AddUnitRequest += AddUnitRequest;
+        }
+
+
+
+        // Start is called before the first frame update
+        protected void Start()
+        {
+            camera = Camera.main;
+            CameraMode = MainMapCameraMode.Table;
+
+            if (TableIconsPanel)
+                InitParameters();
+        }
+
+        private void OnDestroy()
+        {
+            gameManager.PassTimeEventHandlerAsync -= PassTimeNortificationAsync;
+            gameManager.EventSceneController.BeginEventHandler -= BeginEventAction;
+            gameManager.EventSceneController.EndEventHandler -= EndEventAction;
+            TableIconsPanel.ClearSquadImages();
+            TableIconsPanel.ClearLocationImages();
+        }
+
+        /// <summary>
+        /// MainMapSceneでセットされたパラメーターを各種に振り分ける
+        /// </summary>
+        private void InitParameters()
+        {
             TableIconsPanel.SelectSquadAction = (s => ClickSquad(s.MapSquad));
             TableIconsPanel.SelectLocationAction = (l => ClickLocation(l.MapLocation));
 
@@ -159,24 +185,70 @@ namespace MainMap
             TableIconsPanel.LocationBalloon.OnPointerExitAction = (s => CursorExitFromSupplyOrLocation(s));
             TableIconsPanel.LocationBalloon.OnPointerClickAction = (s => CursorOnClickSupplyOrLocation(s, false));
 
-            // TableIconsPanel.ReturnBaseBalloon.OnPointerEnterAction = (s => );
-            // TableIconsPanel.ReturnBaseBalloon.OnPointerExitAction = (s =>);
             TableIconsPanel.ReturnBaseBalloon.OnPointerClickAction = (s => ReturnSquadAction(s.MapSquad));
+
+            MapSquads.tableOverlayPanel = TableIconsPanel;
+
+            MapSquads.infoPanel = SquadsInfoPanel;
+            SquadsInfoPanel.cardIsSelectedAction = InfoPanelCardOnClick;
+            SquadsInfoPanel.returnSquadAction = ReturnSquadAction;
+        }
+
+        /// <summary>
+        /// DataControllerの中身をロードしてMapに反映させる
+        /// </summary>
+        public IEnumerator LoadData()
+        {
+            InitParameters();
+
+            var locationCoroutine = StartCoroutine(MapLocations.LoadData());
+            var squadsCoroutine = StartCoroutine(MapSquads.LoadData());
+
+            yield return locationCoroutine;
+            yield return squadsCoroutine;
+
+            MapLocations.locations.ForEach(l =>
+            {
+                l.LocationImage = TableIconsPanel.AddLocationImage(l);
+            });
+            TableIconsPanel.UpdateLocationsPosition();
+
+            // TODO: すべてのロードが終了した状態
+
+            // var gameTime = GameManager.SavedData.saveDataInfo.gameTime;
+            //timeController.SetDate(gameTime.Year, gameTime.Month, gameTime.Day);
+            // var timeline = (float)gameTime.Hour + ((float)gameTime.Minute / 60);
+            //timeController.SetTimeline(timeline);
+
+            MapSpawns.CompleteToLoadData();
 
             var squadDetail = MainUIController.SquadsPanel.squadDetail;
             squadDetail.activateButton.onClick.AddListener(() => SquadReadyToGo(squadDetail.Squad));
+
+            TableIconsPanel.UpdateSquadPosition();
+
+            yield return new WaitForSeconds(1);
+            AbleToControl = true;
         }
 
-
-
-        // Start is called before the first frame update
-        protected void Start()
+        /// <summary>
+        /// ロード後の初めてのイベントチェック
+        /// </summary>
+        public IEnumerator CheckEventAtFirstTime()
         {
-            camera = Camera.main;
-            CameraMode = MainMapCameraMode.Table;
+            //var currentEventPacks = GameManager.EventController.enabledEventPacks.FindAll(p =>
+            //{
+            //    return p.nextEvent.startTrigger.IsToggledWhenFreeTiming();
+            //});
+            //if (currentEventPacks.Count == 0) return;
+            //GameManager.eventSceneController.messageEvent.AddEvents(currentEventPacks) ;
+            yield return StartCoroutine(gameManager.EventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.GameStart));
+            if (gameManager.EventSceneController.messageEvent.IsEventSceneActive)
+            {
+                while (gameManager.EventSceneController.messageEvent.IsEventSceneActive)
+                    yield return null;
+            }
 
-            SquadsInfoPanel.CardIsSelectedAction = InfoPanelCardOnClick;
-            SquadsInfoPanel.ReturnSquadAction = ReturnSquadAction;
         }
 
         // Update is called once per frame
@@ -214,6 +286,8 @@ namespace MainMap
             if (UserController.MouseMoving)
             {
                 var rayDistance = 600;
+                if (camera == null)
+                    return;
                 var ray = camera.ScreenPointToRay(Input.mousePosition);
 
                 if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
@@ -250,8 +324,8 @@ namespace MainMap
             //    // Debug用にSquadを設置
             //    StartCoroutine(MapSquads.PutSquadOnMap(null, "Location.SaiGon"));
             //}
-            if (UserController.KeyCodeSpace)
-                MapSquads.Squads.ForEach(s => s.CancelMoveAnimation());
+            //if (UserController.KeyCodeSpace)
+            //    MapSquads.Squads.ForEach(s => s.CancelMoveAnimation());
 
             //GameController.Instance.mainMapScale = mapObject.transform.localScale.x;
             //GameController.Instance.mainMapPosition = mapObject.transform.position;
@@ -696,8 +770,11 @@ namespace MainMap
             // Squadが選択されている場合 MapLocationsに SquadからLocationへの線描写を投げる
             if (selected != null && !MapSquads.IsSquadMoving)
             {
-                StartCoroutine(MapLocations.DrawTrajectory(selected, locationImage.MapLocation));
-                TableIconsPanel.HourBalloon.Show(locationImage, CalcTime(selected, locationImage.MapLocation));
+                if (selected.Location != locationImage.MapLocation)
+                {
+                    StartCoroutine(MapLocations.DrawTrajectory(selected, locationImage.MapLocation));
+                    TableIconsPanel.HourBalloon.Show(locationImage, CalcTime(selected, locationImage.MapLocation));
+                }
             }
             if (MapSquads.IsSquadReadyToGo)
             {
@@ -735,6 +812,9 @@ namespace MainMap
         {
             if (!MapSquads.IsSquadMoving)
             {
+                // 移動前のデータを一時保存
+                gameManager.DataSavingController.WriteAsTempData();
+
                 MapSquads.MoveSquad(squad, location);
                 TableIconsPanel.HourBalloon.Hide(0);
             }
@@ -835,7 +915,6 @@ namespace MainMap
 
         #endregion
 
-
         /// <summary>
         /// Tabを押してUIを表示
         /// </summary>
@@ -870,20 +949,70 @@ namespace MainMap
         }
 
         /// <summary>
+        /// Map上でのタイマーの進行を止める
+        /// </summary>
+        private void StopTimer()
+        {
+            if (!gameObject.activeSelf)
+                return;
+
+            AbleToControl = false;
+            gameManager.IsTimerStopping = true;
+            MapSpawns.StopAll = true;
+            MapSquads.StopAllSquads = true;
+            //timeController.PauseTime();
+        }
+
+        /// <summary>
+        /// Map上でのタイマーの進行を再開する
+        /// </summary>
+        private void RestartTimer()
+        {
+            if (!gameObject.activeSelf)
+                return;
+
+            AbleToControl = true;
+            MapSpawns.StopAll = false;
+            MapSquads.StopAllSquads = false;
+            gameManager.IsTimerStopping = false;
+            //timeController.PlayTimeAgain();
+        }
+
+        /// <summary>
+        /// Map上にいるSquadがエンカウント状態にある場合これを手動でTacitcs画面に遷移させるか判断する
+        /// </summary>
+        public void CheckEncountedSquad()
+        {
+            foreach (var squad in MapSquads.Squads)
+            {
+                foreach (var spawn in MapSpawns.squads)
+                {
+                    if (spawn.SpawnRequestData.LocationID == squad.Location.id)
+                    {
+                        // SpawnRequestData.specificTacticticsSceneIDが設定されている場合これを使い、ない場合はlocationのdefaultを使う
+                        ReachedAtLocation(this, new ReachedEventArgs(squad.data, spawn.SpawnRequestData, squad.Location.id, gameManager.GameTime, squad.Location.DefaultTacticsSceneID));
+                        return;
+                    }
+                }
+            }
+        }
+
+        #region Called
+        /// <summary>
         /// Squadがlocationに到着した際に呼び出し
         /// </summary>
         private void ReachedAtLocation(object o, ReachedEventArgs args)
         {
             if (args.ReachedAtLocation)
             {
-                print($"{args.Player.commander.Data.ID} reached at {args.MapLocation}, Encounted: {args.Encounted} ");
+                print($"{args.Player.commander.Data.ID} reached at {args.MapLocationID}, Encounted: {args.Encountered} ");
             }
             else
             {
-                print($"{args.Player.commander.Data.ID} passed through {args.MapLocation}, Encounted: {args.Encounted} ");
+                print($"{args.Player.commander.Data.ID} passed through {args.MapLocationID}, Encounted: {args.Encountered} ");
             }
 
-            if (args.Encounted)
+            if (args.Encountered)
             {
                 MapLocations.HideTrajectoryWithoutAnimation();
                 StartCoroutine(ShowTacticsScene(args));
@@ -917,88 +1046,6 @@ namespace MainMap
         }
 
         /// <summary>
-        /// Map上でのタイマーの進行を止める
-        /// </summary>
-        private void StopTimer()
-        {
-            if (!gameObject.activeSelf)
-                return;
-
-            AbleToControl = false;
-            gameManager.IsTimerStopping = true;
-            MapSpawns.StopAll = true;
-            MapSquads.StopAllSquads = true;
-            //timeController.PauseTime();
-        }
-
-        /// <summary>
-        /// Map上でのタイマーの進行を再開する
-        /// </summary>
-        private void RestartTimer()
-        {
-            if (!gameObject.activeSelf)
-                return;
-
-            AbleToControl = true;
-            MapSpawns.StopAll = false;
-            MapSquads.StopAllSquads = false;
-            gameManager.IsTimerStopping = false;
-            //timeController.PlayTimeAgain();
-        }
-
-        /// <summary>
-        /// DataControllerの中身をロードしてMapに反映させる
-        /// </summary>
-        public IEnumerator LoadData()
-        {
-            var locationCoroutine = StartCoroutine( MapLocations.LoadData());
-            var squadsCoroutine = StartCoroutine(MapSquads.LoadData());
-
-            yield return locationCoroutine;
-            yield return squadsCoroutine;
-
-            MapLocations.locations.ForEach(l =>
-            {
-                l.LocationImage = TableIconsPanel.AddLocationImage(l);
-            });
-            TableIconsPanel.UpdateLocationsPosition();
-
-            // TODO: すべてのロードが終了した状態
-
-            // var gameTime = GameManager.SavedData.saveDataInfo.gameTime;
-            //timeController.SetDate(gameTime.Year, gameTime.Month, gameTime.Day);
-            // var timeline = (float)gameTime.Hour + ((float)gameTime.Minute / 60);
-            //timeController.SetTimeline(timeline);
-
-            MapSpawns.CompleteToLoadData();
-
-            calender.UpdateTime();
-
-            yield return new WaitForSeconds(1);
-            AbleToControl = true;
-        }
-
-        /// <summary>
-        /// ロード後の初めてのイベントチェック
-        /// </summary>
-        public IEnumerator CheckEventAtFirstTime()
-        {
-            //var currentEventPacks = GameManager.EventController.enabledEventPacks.FindAll(p =>
-            //{
-            //    return p.nextEvent.startTrigger.IsToggledWhenFreeTiming();
-            //});
-            //if (currentEventPacks.Count == 0) return;
-            //GameManager.eventSceneController.messageEvent.AddEvents(currentEventPacks) ;
-            yield return StartCoroutine( gameManager.EventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.GameStart));
-            if (gameManager.EventSceneController.messageEvent.IsEventSceneActive)
-            {
-                while (gameManager.EventSceneController.messageEvent.IsEventSceneActive)
-                    yield return null;
-            }
-            
-        }
-
-        /// <summary>
         /// UIからSquadをLocationにFastTravelした際の呼び出し
         /// </summary>
         /// <param name="o"></param>
@@ -1021,30 +1068,31 @@ namespace MainMap
             StopTimer();
             gameManager.Speed = 1;
             yield return StartCoroutine(gameManager.EventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.BeforePrepare, 
-                                                                                           args.Enemy.encounmtSpawnID));
+                                                                                           args.Enemy.ID));
             while (gameManager.EventSceneController.IsEventWindowActive)
                 yield return null;
             yield return new WaitForSeconds(0.5f);
 
-            GameManager.Instance.Encounter = args;
-            yield return StartCoroutine(GameManager.Instance.ShowTactics(args.TacticsSceneID));
-            MainUIController.CalledWhenEncount();
-
-            mainMapScene.TransitToTacticsScene();
+            StartCoroutine(mainMapScene.TransitToTacticsScene(args));
         }
 
         /// <summary>
         /// TTactics画面から遷移してきたときの呼び出し MainMapScene空の呼び出し
         /// </summary>
-        internal void CalledWhenReturnFromTactics(bool despawnEnemy, bool returnPlayer)
+        /// <param name="despawnEnemy">戦闘に勝利等で敵が排除された場合</param>
+        /// <param name="reachedEventArgs">戦闘を行った相手の情報</param>
+        /// <param name="returnPlayer">戦闘後Player部隊が帰還するか</param>
+        internal void CalledWhenReturnFromTactics(BackToMainMapHandlerArgs arg)
         {
-            if (despawnEnemy)
+            var selectedSquad = MapSquads.GetMapSquadFromSquadData(arg.ReachedEventArgs.Player);
+            MapSquads.SelectedSquad = selectedSquad;
+            if (arg.DespawnEnemy)
             {
-                var location = MapSpawns.DespawnEncountSquads(true);
+                var location = MapSpawns.DespawnEncountSquads(arg.ReachedEventArgs);
                 MapSquads.PutSquadOnSpawnLocation(location, MapSquads.SelectedSquad);
             }
                 
-            if (returnPlayer)
+            if (arg.ReturnPlayer)
                 StartCoroutine(MapSquads.SquadReturnToBase(MapSquads.SelectedSquad, true));
             //sideMessages.pauseToPlayMessages.pause = false;
             RestartTimer();
@@ -1071,6 +1119,21 @@ namespace MainMap
             //var spawns = currentEventPacks.FindAll(p => p.nextEvent is Mission.Spawn);
             //GameManager.eventSceneController.messageEvent.AddEvents(currentEventPacks);
         }
+        
+        /// <summary>
+        /// EventSceneControllerからAddUnitRequestが呼び出された際に呼び出される
+        /// </summary>
+        private void AddUnitRequest(AddUnitEventOutput addUnitEventOutput)
+        {
+            if (gameManager.StaticData.AllUnitsData.GetUnitFromID(addUnitEventOutput.UnitID, out var baseData))
+            {
+                var data = new UnitData(baseData);
+                data.MyItems = GameManager.Instance.SceneParameter.DefaultItemHolders.ConvertAll(i => new ItemHolder(i));
+                gameManager.DataSavingController.MyArmyData.AddNewUnit(new UnitData(baseData));
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

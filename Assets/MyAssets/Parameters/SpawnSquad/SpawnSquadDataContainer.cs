@@ -12,6 +12,8 @@ using System.Collections;
 using Parameters.Units;
 using AIGraph.Editor;
 using Unity.VisualScripting.FullSerializer;
+using static Utility;
+using EventGraph.InOut;
 
 namespace Parameters.SpawnSquad
 {
@@ -57,6 +59,11 @@ namespace Parameters.SpawnSquad
             var _data = squads.FindAll(s => s.ID == id);
             if (_data.Count == 0)
                 return false;
+            if (_data.Count == 1)
+            {
+                data = _data[0];
+                return true;
+            }
             data = _data.Find(d => d.EnemyLevel == level);
             if (data == null)
                 data = _data.FindMax(d => d.EnemyLevel);
@@ -67,10 +74,35 @@ namespace Parameters.SpawnSquad
         /// 同一IDを持つSquadをすべて取得
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>Levelの異なるSquadが複数返される</returns>
         public List<SpawnSquadData> GetSpawnSquadsFromID(string id)
         {
             return squads.FindAll(s => s.ID == id);
+        }
+
+        /// <summary>
+        /// IDとLevelからSpawnSquadを取得 (同じLevelがない場合は次に低いLevelのSquadを返す)
+        /// </summary>
+        /// <param name="id">SpawnSquadDataのID</param>
+        /// <param name="level">指定レベル</param>
+        /// <returns></returns>
+        public SpawnSquadData GetSpawnSquadFromIDAndLevel(string id, int level)
+        {
+            
+            var spawnSquads = GetSpawnSquadsFromID(id);
+            spawnSquads.Sort((a, b) => a.EnemyLevel - b.EnemyLevel);
+            SpawnSquadData data = null;
+            data = spawnSquads.Find(s => s.EnemyLevel == level);
+            if (data == null)
+            {
+                // 指定したLevelがない場合は次に低いLevelのSquadを返す
+                spawnSquads.RemoveAll(s => s.EnemyLevel > level);
+                if (spawnSquads.Count > 0)
+                    data = spawnSquads[spawnSquads.Count - 1];
+                else
+                    PrintError($"SpawnSquadDataContainer: ID {id} has no level {level} squad");
+            }
+            return data;
         }
 
         /// <summary>
@@ -93,32 +125,18 @@ namespace Parameters.SpawnSquad
     }
 
     /// <summary>
-    /// すぽーんする敵の部隊データ
+    /// スポーンする敵の部隊データ
     /// </summary>
     [Serializable]
     public class SpawnSquadData
     {
         [SerializeField] public string ID;
-        [Tooltip("SquadのスポーンするMapLocation上の位置")]
-        [SerializeField] public string location;
         [Tooltip("EnemyのLevel (周りのEnemyがPlayerに撃破されるごとにEnemyLevelの低いEnemyが適応される)")]
         [SerializeField] public int EnemyLevel;
-        [Tooltip("周囲の敵を撃破されたときに低下していくenemyLevelが時間とともに回復するか")]
-        [SerializeField] public bool AutoRecoveryLevel = false;
-        [Tooltip("ストーリー上優先してエンカウントするSquadか")]
-        [SerializeField, ReadOnly] public bool IsNecessaryForEvent;
-        [Tooltip("スポーンの優先度合いのソート")]
-        [SerializeField] public float sort;
         [Tooltip("Spawnさせるのにかかるコスト")]
-        [SerializeField] public float cost;
-        [Tooltip("Squadの戦うTacticsSceneのID")]
-        [SerializeField] public string tacticsSceneID;
-        [Tooltip("Spawnする部隊のencountID")]
-        [SerializeField] public string encounmtSpawnID;
+        [SerializeField] public int cost;
         [Tooltip("SawnするEnemyのUnits")]
         [SerializeField] public List<TileAndEnemiesPair> tileAndUnits;
-        [Tooltip("Playerの出撃地点のTileID")]
-        [SerializeField] public List<string> playerTileIDs;
         [Tooltip("撃破時の受領BaseExp")]
         [SerializeField] public int exp;
 
@@ -129,22 +147,19 @@ namespace Parameters.SpawnSquad
         {
             get
             {
-                if (_parameters == null)
+                if (allUnitsData == null)
                 {
-                    _parameters = new List<UnitData>();
-                    if (tileAndUnits != null)
+                    allUnitsData = new List<UnitData>();
+                    tileAndUnits?.ForEach(tu =>
                     {
-                        tileAndUnits.ForEach(tu =>
-                        {
-                            if (tu != null)
-                                _parameters.AddRange(tu.UnitsData);
-                        });
-                    }
+                        if (tu != null)
+                            allUnitsData.AddRange(tu.UnitsData);
+                    });
                 }
-                return _parameters;
+                return allUnitsData;
             }
         }
-        [NonSerialized] private List<UnitData> _parameters;
+        [NonSerialized] private List<UnitData> allUnitsData;
 
         public UnitData CommanderData
         {
@@ -158,7 +173,7 @@ namespace Parameters.SpawnSquad
 
         public override string ToString()
         {
-            return $"SpawnSquadData: Comm.{CommanderData} {UnitsData.Count} units on {location}, sort {sort}, tactics scene is {tacticsSceneID}";
+            return $"SpawnSquadData: Comm.{CommanderData} {UnitsData.Count} units";
         }
 
         /// <summary>
@@ -183,27 +198,27 @@ namespace Parameters.SpawnSquad
             {
                 get
                 {
-                    if (_unitsData == null)
+                    if (unitsData == null)
                     {
                         var allUnitsData = GameManager.Instance.StaticData.AllUnitsData;
-                        _unitsData = new List<UnitData>();
+                        unitsData = new List<UnitData>();
                         UnitAndMovePairs.ForEach(i =>
                         {
                             if (allUnitsData.GetUnitFromID(i.UnitID, out var p))
                             {
                                 var unit = new UnitData(p);
                                 unit.RoutineWayIndex = i.RoutineWayIndex;
-                                _unitsData.Add(unit);
+                                unitsData.Add(unit);
                             }
                             else
                                 Debug.LogWarning($"Invalid access unitID: {i}");
                         });
                     }
 
-                    return _unitsData;
+                    return unitsData;
                 }
             }
-            [NonSerialized] private List<UnitData> _unitsData;
+            [NonSerialized] private List<UnitData> unitsData;
 
         }
 
@@ -226,6 +241,101 @@ namespace Parameters.SpawnSquad
             public string UnitID;
             [Tooltip("Unitが敵非発見状態で周回するWayのIndex")]
             public int RoutineWayIndex = -1;
+        }
+    }
+
+    /// <summary>
+    /// SpawnするSquadのリクエストデータ SaveDataに保存されるDataでもある
+    /// </summary>
+    [Serializable]
+    public class SpawnRequestArgs: EventArgs
+    {
+        /// <summary>
+        /// SpawnするSquadのBaseからのID
+        /// </summary>
+        public string SpawnSquadID;
+        /// <summary>
+        /// SpawnするSquadがFollowerの場合のBaseSquadID
+        /// </summary>
+        public string BaseSquadID;
+        /// <summary>
+        /// Spawnする位置のID
+        /// </summary>
+        public string LocationID;
+        /// <summary>
+        /// SquadのLevel
+        /// </summary>
+        public int Level;
+        /// <summary>
+        /// spawnする時間
+        /// </summary>
+        public SerializableDateTime SerializableSpawnTime;
+        /// <summary>
+        /// イベント用にスポーンが必須なSquadか
+        /// </summary>
+        public bool IsNecessaryForEvent;
+        /// <summary>
+        /// スポーンするSquadの優先度
+        /// </summary>
+        public int Priority;
+        /// <summary>
+        /// TacticsSceneを指定して出す場合のID (無しならLocationのDefaultTacticsSceneIDになる)
+        /// </summary>
+        public string SpecificTacticsSceneID = "";
+
+        /// <summary>
+        /// TacticsSceneで戦闘が始まる位置
+        /// </summary>
+        public StartPosition StartPosition;
+
+        /// <summary>
+        /// SquadDataを検索してminiPrefabを取得 miniPrefabはレベル共通のため最初に取得したものをキャッシュする
+        /// </summary>
+        public GameObject MiniPrefab
+        {
+            get
+            {
+                if (miniPrefab == null)
+                {
+                    if (GameManager.Instance.StaticData.AllSpawnSquads.GetSpawnSquadFromID(SpawnSquadID, 0, out var data))
+                    {
+                        miniPrefab = data.CommanderData.Data.MiniPrefab;
+                    }
+                    else
+                    {
+                        PrintError($"SpawnRequestArgs: SpawnSquadID {SpawnSquadID} is not found");
+                    }
+                }
+                return miniPrefab;
+            }
+        }
+        private GameObject miniPrefab;
+
+        /// <summary>
+        /// Spawnする時間
+        /// </summary>
+        public DateTime SpawnTime
+        {
+            get => SerializableSpawnTime.Value;
+            set => SerializableSpawnTime = value;
+        }
+
+        public SpawnRequestArgs()
+        {
+            SerializableSpawnTime = new SerializableDateTime();
+        }
+
+        public SpawnRequestArgs(SpawnEventOutput spawnEventOutput, DateTime spawnTime)
+        {
+            SpawnSquadID = spawnEventOutput.SquadID;
+            BaseSquadID = spawnEventOutput.BaseSquadID;
+            LocationID = spawnEventOutput.LocationID;
+            SpecificTacticsSceneID = spawnEventOutput.SpecificTacticsSceneID;
+            Level = spawnEventOutput.Level;
+            SerializableSpawnTime = new SerializableDateTime(spawnTime);
+            IsNecessaryForEvent = spawnEventOutput.IsNecessaryForEvent;
+            Priority = spawnEventOutput.Priority;
+            StartPosition = spawnEventOutput.StartPosition;
         }
     }
 }

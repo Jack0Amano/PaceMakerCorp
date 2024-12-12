@@ -5,6 +5,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using StoryGraph.Nodes;
 using UnityEngine;
+using static Utility;
 
 namespace StoryGraph
 {
