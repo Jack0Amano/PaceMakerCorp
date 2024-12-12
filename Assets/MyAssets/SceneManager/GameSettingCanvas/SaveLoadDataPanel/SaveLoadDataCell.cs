@@ -106,7 +106,6 @@ namespace GameSetting.SaveLoadData
                 operationAreaLabel.text = model.operatingArea;
                 localTimeLabel.text = model.localTime;
                 unitsCountLabel.text = model.unitsValue;
-                squadsCountLabel.text = model.squadsValue;
                 
             }
         }

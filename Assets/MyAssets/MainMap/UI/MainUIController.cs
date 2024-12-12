@@ -240,13 +240,13 @@ namespace MainMap.UI
         /// </summary>
         private void OpenWindow(object o, OpenWindowArgs args)
         {
-            if (windowType == args.WindowType)
+            if (windowType == args.windowType)
                 return;
 
             // TabButtonのDisableを手動で行う (Tab以外のボタンで画面遷移のRequestが送られる場合)
-            if (args.TabButtonDisabledManual)
+            if (args.tabButtonDisabledManual)
             {
-                TabController.InteractiveTabButton(args.WindowType);
+                TabController.InteractiveTabButton(args.windowType);
             }
 
             // 現在表示中のWindowの内容を非表示にする
@@ -283,7 +283,7 @@ namespace MainMap.UI
             
 
             // 指定されたWindowの内容を（Argsにpropertiesがあればソレを反映して）表示する
-            switch (args.WindowType)
+            switch (args.windowType)
             {
                 //case (WindowType.LocationWindow):
                 //    locationPanel.Show();
@@ -313,7 +313,7 @@ namespace MainMap.UI
                     break;
             }
 
-            windowType = args.WindowType;
+            windowType = args.windowType;
         }
     
     }
@@ -323,16 +323,16 @@ namespace MainMap.UI
     /// </summary>
     public class OpenWindowArgs: EventArgs
     {
-        public WindowType WindowType;
+        public WindowType windowType;
 
-        public bool TabButtonDisabledManual = false;
+        public bool tabButtonDisabledManual = false;
 
-        public bool ReloadData = false;
+        public bool reloadData = false;
 
         /// <summary>
         /// Infoパネルでのオブジェクト選択を取り消す
         /// </summary>
-        public bool CloseSelectInfo = false;
+        public bool closeSelectInfo = false;
     }
 
     public enum WindowType

@@ -19,54 +19,39 @@ namespace MainMap.Spawn
         /// スポーンしたSquadの元データ
         /// </summary>
         [SerializeField] internal SpawnSquadData data;
-        public SpawnRequestArgs SpawnRequestData { get; set; }
         /// <summary>
-        /// SpawnSquadDataのID
+        /// 所属する基地
         /// </summary>
-        public string SquadID;
+        internal MainMap.MapLocation baseLocation;
         /// <summary>
         /// 移動用Sequence
         /// </summary>
         internal Sequence sequence;
         /// <summary>
-        /// BaseとなるSquadのID
+        /// NPCの行動タイプ
         /// </summary>
-        internal string BaseSquadID { get => SpawnRequestData.BaseSquadID; }
-        /// <summary>
-        /// スポーンした時間
-        /// </summary>
-        internal DateTime spawnTime;
-        /// <summary>
-        /// Squadの位置しているMapLocation
-        /// </summary>
-        internal MapLocation mapLocation;
-
-        /// <summary>
-        /// Squadがbaseの隷下部隊であるか
-        /// </summary>
-        public bool IsFollower { get => BaseSquadID != null; }
-
+        internal NPCType moveType;
         /// <summary>
         /// 最初にSquadがスポーンした座標
         /// </summary>
-        internal Vector3 SpawnPosition
+        internal Vector3 spawnPosition
         {
             set 
             {
-                if (spawnPosition == null) spawnPosition = value;
+                if (_spawnPosition == null) _spawnPosition = value;
             }
-            get => spawnPosition;
+            get => _spawnPosition;
         }
-        private Vector3 spawnPosition;
+        private Vector3 _spawnPosition;
 
         /// <summary>
         /// Squadの移動を一時停止する
         /// </summary>
-        internal bool StopAnimation
+        internal bool stopAnimation
         {
             set
             {
-                stopAnimation = value;
+                _stopAnimation = value;
                 if (sequence != null && sequence.IsActive())
                 {
                     if (value)
@@ -75,14 +60,25 @@ namespace MainMap.Spawn
                         sequence.Play();
                 }
             }
-            get => stopAnimation;
+            get => _stopAnimation;
         }
-        private bool stopAnimation = false;
+        private bool _stopAnimation = false;
 
         public override string ToString()
         {
-            return $"SpawnSquad: [ {SpawnRequestData}]";
+            return $"SpawnSquad: [ {data} TYPE: {moveType}]";
         }
     }
 
+    enum NPCType
+    {
+        /// <summary>
+        /// 一箇所にとどまる防衛隊
+        /// </summary>
+        Defence,
+        /// <summary>
+        /// 救援部隊
+        /// </summary>
+        Rescue
+    }
 }

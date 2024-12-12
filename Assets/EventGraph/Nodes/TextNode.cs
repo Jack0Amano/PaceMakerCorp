@@ -51,17 +51,17 @@ namespace EventGraph.Nodes
             base.Load(data);
             TextField.RegisterValueChangedCallback(e => RegisterAnyValueChangedCallback?.Invoke(this));
 
-            if (data.Raw.GetFromPairs(TextAccessKey, out string value))
+            if (data.raw.GetFromPairs(TextAccessKey, out string value))
                 TextField.value = value;
-            data.Raw.GetFromPairs(TextTypeKey, out string typeStr);
+            data.raw.GetFromPairs(TextTypeKey, out string typeStr);
             EnumField.value = ((TextType[])Enum.GetValues(typeof(TextType))).ToList().FirstOrDefault(t => t.ToString() == typeStr);
         }
 
         public override NodeData Save()
         {
             var data = base.Save();
-            data.Raw.SetToPairs(TextAccessKey, TextField.value);
-            data.Raw.SetToPairs(TextTypeKey, EnumField.value);
+            data.raw.SetToPairs(TextAccessKey, TextField.value);
+            data.raw.SetToPairs(TextTypeKey, EnumField.value);
             return data;
         }
 

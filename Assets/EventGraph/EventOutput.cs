@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System;
 using UnityEditor;
 using System.Linq;
-using MainMap;
 
 
 namespace EventGraph.InOut
@@ -77,25 +76,6 @@ namespace EventGraph.InOut
     }
 
     /// <summary>
-    /// Unitを追加するイベント
-    /// </summary>
-    public class AddUnitEventOutput : EventOutput
-    {
-        /// <summary>
-        /// 追加するUnitのID
-        /// </summary>
-        public string UnitID;
-        public AddUnitEventOutput(Nodes.SampleNode node, string id, Port outputPort) : base(node, id, outputPort)
-        {
-        }
-
-        public override string ToString()
-        {
-            return $"AddUnitEvent: {UnitID}";
-        }
-    }
-
-    /// <summary>
     /// スポーンするSquadとその位置情報等 を出すイベント
     /// </summary>
     public class SpawnEventOutput : EventOutput
@@ -103,35 +83,11 @@ namespace EventGraph.InOut
         /// <summary>
         /// Spawnさせる部隊のID (spawnDataの中から選ばれる)
         /// </summary>
-        public string SquadID;
+        public string squadID;
         /// <summary>
-        /// どこのLocationにSpawnさせるか
+        /// 出現確率 1ならイベントで必須の部隊
         /// </summary>
-        public string LocationID;
-        /// <summary>
-        /// TacticsSceneを指定して出す場合のID (無しならLocationのDefaultTacticsSceneIDになる)
-        /// </summary>
-        public string SpecificTacticsSceneID;
-        /// <summary>
-        /// どの方角からスタートするか
-        /// </summary>
-        public StartPosition StartPosition;
-        /// <summary>
-        /// どのレベルの敵をSpawnさせるか
-        /// </summary>
-        public int Level;
-        /// <summary>
-        /// Baseとなる部隊のID (Follower部隊の場合のみ)
-        /// </summary>
-        public string BaseSquadID;
-        /// <summary>
-        /// Squadがイベントの進行に必要か
-        /// </summary>
-        public bool IsNecessaryForEvent;
-        /// <summary>
-        /// Squadの優先度
-        /// </summary>
-        public int Priority;
+        public float spawnRate;
 
         public SpawnEventOutput(Nodes.SampleNode node,  string id, Port outputPort): base(node, id, outputPort)
         {
@@ -139,7 +95,7 @@ namespace EventGraph.InOut
 
         public override string ToString()
         {
-            return $"SpawnEvent: {SquadID}";
+            return $"SpawnEvent: {squadID}";
         }
     }
 
@@ -177,7 +133,7 @@ namespace EventGraph.InOut
         /// <summary>
         /// 会話の流れ
         /// </summary>
-        public List<Sentence> Sentences = new List<Sentence>();
+        public List<Sentence> sentences = new List<Sentence>();
 
         /// <summary>
         /// 有効化するイメージ
@@ -210,26 +166,26 @@ namespace EventGraph.InOut
 
         public class Sentence
         {
-            public string Id;
+            public string id;
             /// <summary>
             /// メッセージの本文
             /// </summary>
-            public string Text;
+            public string text;
             /// <summary>
             /// メッセージが誰から送られたか
             /// </summary>
-            public string MessageFrom;
+            public string messageFrom;
             /// <summary>
             /// 返答用の選択肢
             /// </summary>
-            public bool IsChoice;
+            public bool isChoice;
 
             public override string ToString()
             {
-                if (IsChoice)
-                    return Text;
+                if (isChoice)
+                    return text;
                 else
-                    return $"{MessageFrom}< {Text}";
+                    return $"{messageFrom}< {text}";
             }
         }
 
@@ -238,9 +194,9 @@ namespace EventGraph.InOut
             var output = "";
             var index = 0;
             var choiceIndex = 0;
-            Sentences.ForEach(s =>
+            sentences.ForEach(s =>
             {
-                if (!s.IsChoice)
+                if (!s.isChoice)
                 {
                     output += $"{index}. {s}\n";
                     index++;
@@ -283,10 +239,6 @@ namespace EventGraph.InOut
         /// 選択肢式のトリガーを保つ場合のその選択したIndex
         /// </summary>
         public int SelectTriggerIndex;
-        /// <summary>
-        /// 現在のMainMapController
-        /// </summary>
-        public MainMapController MainMapController;
 
         /// <summary>
         /// 現在時刻
@@ -295,25 +247,20 @@ namespace EventGraph.InOut
         /// <summary>
         /// どのスポーンIDを持つ的にエンカウントしたのか OnBattleTriggerNode等に使う
         /// </summary>
-        public string EncountSpawnID;
+        public string encountSpawnID;
         /// <summary>
         /// トリガーとなるSceneのタイミング
         /// </summary>
-        public TriggerTiming TriggerTiming;
+        public TriggerTiming triggerTiming;
         /// <summary>
         /// 結果によるトリガー
         /// </summary>
-        public Tactics.VictoryConditions.GameResult GameResultTrigger;
+        public Tactics.VictoryConditions.GameResult gameResultTrigger;
 
         /// <summary>
         /// 所持しているアイテムのID
         /// </summary>
         public List<string> ItemsID;
-
-        override public string ToString()
-        {
-            return $"EventInput: {TriggerTiming}, StartAtID({StartAtID})";
-        }
     }
 
     /// <summary>

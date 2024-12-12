@@ -7,6 +7,7 @@ using static Utility;
 using System.Linq;
 using System.Collections.Generic;
 using Tactics.Character;
+using AmplifyShaderEditor;
 using Tactics.Object;
 
 namespace Tactics.Control
@@ -35,7 +36,7 @@ namespace Tactics.Control
         internal Transform OverShoulderCameraParent;
         internal float OverShoulderCameraDefaultXRotation;
 
-        internal Transform overShoulderCameraFarParent;
+        internal Transform OverShoulderCameraFarParent;
 
         private Transform followCameraTransform;
         private ThirdPersonCharacter m_Character; // A reference to the ThirdPersonCharacter on the object
@@ -43,13 +44,13 @@ namespace Tactics.Control
         private Vector3 m_Move;
         private bool dash = false;
 
-        private float horizontal = 0;
-        private float vertical = 0;
+        private float Horizontal = 0;
+        private float Vertical = 0;
 
         /// <summary>
         /// FollowCameraを横にずらしておくためのparent
         /// </summary>
-        internal GameObject followCameraParent;
+        internal GameObject FollowCameraParent;
 
         /// <summary>
         /// Userに関連付けられているcinemachineVirtualCamera
@@ -88,15 +89,15 @@ namespace Tactics.Control
         /// </summary>
         internal bool IsMoving
         {
-            get => isMoving;
+            get => _isMoving;
             set
             {
                 if (!value)
                     m_Character.Move(Vector3.zero, false, false, false);
-                isMoving = value;
+                _isMoving = value;
             }
         }
-        private bool isMoving = false;
+        private bool _isMoving = false;
         /// <summary>
         /// 自動で経路にコントロール中
         /// </summary>
@@ -106,7 +107,7 @@ namespace Tactics.Control
         /// <summary>
         /// 現在手に持っているItem
         /// </summary>
-        private Items.Item currentItem;
+        private Items.Item CurrentItem;
 
         private List<Vector3> debugAutoMovingWay;
 
@@ -118,16 +119,16 @@ namespace Tactics.Control
             get => m_Character.m_Crouching;
         }
 
-        public UnitController UnitController
+        UnitController UnitController
         {
             get
             {
-                if (unitController == null)
-                    unitController = GetComponent<UnitController>();
-                return unitController;
+                if (_unitController == null)
+                    _unitController = GetComponent<UnitController>();
+                return _unitController;
             }
         }
-        private UnitController unitController;
+        private UnitController _unitController;
 
         /// <summary>
         /// UnitがAlongWallに接触しておりカバー状態である
@@ -149,14 +150,11 @@ namespace Tactics.Control
         private void Awake()
         {
             m_Character = GetComponent<ThirdPersonCharacter>();
-            followCameraParent = followCamera.transform.parent.gameObject;
+            FollowCameraParent = followCamera.transform.parent.gameObject;
             OverShoulderCameraParent = OverShoulderCamera.transform.parent;
             OverShoulderCameraDefaultXRotation = OverShoulderCameraParent.localRotation.eulerAngles.x;
 
-            overShoulderCameraFarParent = OverShoulderCameraFar.transform.parent;
-
-            // UnitのvirtualCameraのPriorityを0に初期化する
-            CinemachineVirtualCameras.ForEach(c => c.Priority = 0);
+            OverShoulderCameraFarParent = OverShoulderCameraFar.transform.parent;
         }
 
         private void Start()
@@ -179,15 +177,15 @@ namespace Tactics.Control
                 // read inputs
                 if (m_Character.IsFollowingWallMode)
                 {
-                    horizontal = UserController.KeyHorizontalRaw;
-                    vertical = UserController.KeyVerticalRaw;
+                    Horizontal = UserController.KeyHorizontalRaw;
+                    Vertical = UserController.KeyVerticalRaw;
                 }
                 else
                 {
-                    horizontal = UserController.KeyHorizontal;
-                    vertical = UserController.KeyVertical;
+                    Horizontal = UserController.KeyHorizontal;
+                    Vertical = UserController.KeyVertical;
                 }
-                IsMoving = horizontal != 0 || vertical != 0;
+                IsMoving = Horizontal != 0 || Vertical != 0;
 
                 if (IsMoving)
                 {
@@ -195,7 +193,7 @@ namespace Tactics.Control
                     var forward = transform.parent.transform.TransformDirection(followCameraTransform.forward);
                     m_CamForward = Vector3.Scale(forward, new Vector3(1, 0, 1)).normalized;
                     var right = transform.parent.transform.TransformDirection(followCameraTransform.right);
-                    m_Move = vertical * m_CamForward + horizontal * right;
+                    m_Move = Vertical * m_CamForward + Horizontal * right;
                     m_Character.Move(m_Move, false, false, UserController.KeyCodeDash);
                 }
             }
@@ -237,7 +235,7 @@ namespace Tactics.Control
         /// </summary>
         public IEnumerator HaveItem(Items.Item item)
         {
-            currentItem = item;
+            CurrentItem = item;
             if (!haveItem)
             {
 
@@ -257,7 +255,7 @@ namespace Tactics.Control
         public void AimItem(bool active)
         {
             if (haveItem)
-                m_Character.SetItemAnimation(currentItem.useItemType, active);
+                m_Character.SetItemAnimation(CurrentItem.useItemType, active);
             else
             {
                 // アイテムを持っていない状態でとっさに構える
@@ -272,9 +270,9 @@ namespace Tactics.Control
         {
             if (haveItem)
             {
-                m_Character.UseItemAnimation(currentItem.useItemType, true);
-                yield return new WaitForSeconds(currentItem.UseItemDuration);
-                m_Character.UseItemAnimation(currentItem.useItemType, false);
+                m_Character.UseItemAnimation(CurrentItem.useItemType, true);
+                yield return new WaitForSeconds(CurrentItem.UseItemDuration);
+                m_Character.UseItemAnimation(CurrentItem.useItemType, false);
             }
             else
             {

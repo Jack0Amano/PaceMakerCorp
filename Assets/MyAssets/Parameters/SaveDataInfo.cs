@@ -67,6 +67,10 @@ public class SaveDataInfo
     /// ストーリーの進行度合い
     /// </summary>
     public List<StorySaveData> storiesSaveData = new List<StorySaveData>();
+    /// <summary>
+    /// 何も所持していないときのデフォルトの武器
+    /// </summary>
+    public string DefaultWeaponID;
 
     /// <summary>
     /// Serialize不可なデータをSerializableにするための関数

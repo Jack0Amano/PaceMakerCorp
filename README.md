@@ -24,8 +24,7 @@ Scene Planning
 [Iconの作成とか案出しにAIを使ってもいいかも](https://www.bing.com/images/create?FORM=GENILP)  
 [How to build Start Scene](Wiki/StartScene.md)
 
-[Reference](Wiki/Reference/Main.md)  
-[Command](Wiki/Command.md)
+[Reference](Wiki/Reference/Main.md)
 
 Amply shader editorで影がなんか濃くて変になるとき  
 A. Texture Sampleノードを選択し、画面左に表示されるパラメーターを変更していきます。 Default TextureをWhiteからBumpに変更し、UnpackNormalMapとAttributes欄のNormalにチェックを入れます。   
@@ -56,13 +55,9 @@ TODO
 ----  
 [終わったTODO](Wiki/FinishedToDo.md)  
 
-EndTactics画面でのUnitの非表示化 (影がTabletに写って見にくい)  
-MainMapでのF5での簡易セーブ & 時間ごとTacticsに移る際ののオートセーブ  
-Tactics中のStartCanvasControllerの設定の表示  
-StartCanvasControllerの名称変更  
-MainMapでSpawnPointを通り過ようとしてtacticsに移行した際にSquadの位置がおかしくなる  
-Loadした際の最初のFindEvent done
-DebugControllerの削除とDebugConsoleへの移行 Done
+StartCanvasControllerのおおよそのLoadSaveシステムは終了した  
+Loadの際の<c>gameManager.MainMapScene.CompleteToLoad();</c>などの初イベントはデバッグしたためStartNewGameの際のFirstEventを確認する  
+
 
 - 負けてContinueする場合のMapでのSquadの位置 
 - 負けた場合の選択肢として 

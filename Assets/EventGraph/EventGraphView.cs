@@ -5,8 +5,6 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using EventGraph.Nodes;
 using UnityEngine;
-using UnityEditor;
-using static Utility;
 
 namespace EventGraph
 {
@@ -17,19 +15,13 @@ namespace EventGraph
     {
         public RootNode RootNode;
 
-        public Editor.EventGraphDataContainer DataContainer;
+        public Editor.EventGraphDataContainer dataContainer;
 
         internal EventGraphWindow graphWindow;
 
         internal EventGraphSearchWindowProvider searchWindowProvider;
 
-        internal Vector2 mousePosition;
-        // 説明ポップアップが表示されるまでの時間
-        private const float SHOW_POPUP_TIME = 1.5f;
-        // カーソルがNodeの上に乗ったときの時間
-        private float mouseOverTime;
-        // カーソルが乗っているNode
-        private Node mouseOverNode;
+        public Vector2 mousePosition;
 
         public EventGraphView() : base()
         {
@@ -59,50 +51,9 @@ namespace EventGraph
             {
                 SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), searchWindowProvider);
             };
-
-            //graphWindow = (EventGraphWindow)EditorWindow.GetWindow(typeof(EventGraphWindow));
         }
 
-        [Obsolete]
-        public override void HandleEvent(EventBase evt)
-        {
-            base.HandleEvent(evt);
-            // マウスの位置がNodeの上にあるかどうか
-            if (evt is MouseMoveEvent mouseMoveEvent)
-            {
-                mousePosition = mouseMoveEvent.mousePosition;
-                var sampleNodes = nodes.ToList().Where(n => n is SampleNode).Select(n => (SampleNode)n);
-                foreach (var node in sampleNodes)
-                {
-                    // マウスがNodeの上にあり、かつNodeが選択されている
-                    if (node.ContainsPoint(node.WorldToLocal(mouseMoveEvent.mousePosition)) && selection.Contains(node))
-                    {
-                        // カーソルが同じNodeの上に乗っている時間を計測
-                        if (mouseOverNode == node)
-                        {
-                            mouseOverTime += Time.deltaTime;
-                            // 一定時間以上カーソルが同じNodeの上に乗っていたら説明ポップアップを表示
-                            if (mouseOverTime > SHOW_POPUP_TIME && 
-                                !graphWindow.IsDescriptionPopupOpen && 
-                                node.Description.Length > 0)
-                            {
-                                // 説明ポップアップを表示
-                                graphWindow.ShowNodeDescription(node);
-                            }
-                        }
-                        else
-                        {
-                            // カーソルがNodeの上に乗っている時間をリセット
-                            mouseOverTime = 0;
-                            mouseOverNode = node;
-                        }
-                    }
-                    
-                }
-            }
-            
-        }
-
+       
 
         /// <summary>
         /// ノード間の接続ルール
@@ -154,11 +105,6 @@ namespace EventGraph
             if (input.StartAtID != null && input.StartAtID.Length != 0)
             {
                 var startNode = (ProcessNode)nodes.ToList().Find(n => ((SampleNode)n).Guid == input.StartAtID);
-                if (startNode == null)
-                {
-                    // StartAtIDが見つからない場合は異なるEventViewを参照しているということ
-                    return output;
-                }
                 var _output = startNode.ExecuteFromMiddle(input);
                 if (_output != null)
                 {

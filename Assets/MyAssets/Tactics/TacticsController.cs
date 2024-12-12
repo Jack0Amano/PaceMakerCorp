@@ -30,10 +30,6 @@ using Cinemachine;
 using UnityEngine.AzureSky;
 using Tactics.Character;
 using Tactics.Object;
-using Tactics;
-using MainMap;
-using Tactics.UI;
-using Tactics.Control;
 
 namespace Tactics
 {
@@ -48,7 +44,7 @@ namespace Tactics
         [SerializeField] internal Control.CameraUserController cameraController;
         [SerializeField] internal Map.TilesController tilesController;
         [SerializeField] Canvas overlayCanvas;
-        [SerializeField] TacticsTablet.TacticsTablet tacticsTablet;
+        [SerializeField] UI.TacticsTablet tacticsTablet;
 
         [Header("Result UI")]
         [SerializeField] UI.ResultPanel resultPanel;
@@ -56,6 +52,11 @@ namespace Tactics
         [SerializeField] Transform loseResultTransform;
         [Tooltip("負けた場合にTabletが置かれそれを映すカメラ")]
         [SerializeField] CinemachineVirtualCamera loseResultCamera;
+        [SerializeField] float LoseTabletScale;
+        [SerializeField] float WinTabletScale;
+
+        [Header("Preparing UI")]
+        [SerializeField] Prepare.PreparePanel preparePanel;
 
         [Header("UI when playing")]
         [Tooltip("Tactics中にUnitの一覧を表示するWindow")]
@@ -68,7 +69,7 @@ namespace Tactics
 
         [Header("Debug")]
         [Tooltip("Debug用にTacticsを単独で動かせるかどうか")]
-        [SerializeField] bool isStandaloneMode = false;
+        [SerializeField] bool IsStandaloneMode = false;
         [Tooltip("Debug用のTacticsの属してるMapのname")]
         [SerializeField] string DebugMapSceneName;
         /// <summary>
@@ -76,15 +77,16 @@ namespace Tactics
         /// </summary>
         [SerializeField, ReadOnly] private SceneState sceneState = SceneState.INIT;
 
-        private GameManager gameManager;
+        GeneralParameter Parameters;
+        GameManager GameManager;
 
-        internal UnitsController unitsController;
+        private Character.UnitsController UnitsController;
         /// <summary>
         /// 現在行動中のUnit
         /// </summary>
-        public Character.UnitController ActiveUnit
+        private Character.UnitController ActiveUnit
         {
-            get => unitsController.activeUnit;
+            get => UnitsController.activeUnit;
         }
         /// <summary>
         /// Tactics画面のゲームが動作状態にあるかどうか
@@ -94,47 +96,56 @@ namespace Tactics
         /// <summary>
         /// 勝利条件Controller
         /// </summary>
-        private VictoryConditions victoryConditions;
+        private VictoryConditions VictoryConditions;
 
         /// <summary>
         /// ロードが完了して最初の一回だけ実行
         /// </summary>
-        private bool isLoadCompleted = false;
+        private bool LoadCompleted = false;
         /// <summary>
         /// ターン経過をカウントする
         /// </summary>
         public int TurnCount
         {
-            get => unitsController.AttributeTurnCount;
+            get => UnitsController.AttributeTurnCount;
         }
+
+        /// <summary>
+        /// デバッグ用のコントロール画面
+        /// </summary>
+        private DebugController DebugController;
+        /// <summary>
+        /// <c>debugController</c>が有効化されているか
+        /// </summary>
+        private bool PrepareDebugMode = false;
 
         /// <summary>
         /// Tactics画面がポーズされている状態かどうか
         /// </summary>
-        public bool PauseTactics
+        bool pauseTactics
         {
-            get => PauseTactics;
+            get => pauseTactics;
             set
             {
-                unitsController.PauseAllAnimation = value;
+                UnitsController.PauseAllAnimation = value;
                 Physics.simulationMode = value ?  SimulationMode.Script : SimulationMode.FixedUpdate;
-                StaticPauseTactics = value;
+                PauseTactics = value;
             }
         }
         /// <summary>
         /// Tactics画面がポーズされている状態かどうか
         /// </summary>
-        static public bool StaticPauseTactics = false;
+        static public bool PauseTactics = false;
 
         /// <summary>
         /// SettingCanvasが表示中か
         /// </summary>
-        private bool isSettingCanvasEnable = false;
+        private bool IsSettingCanvasEnable = false;
 
         /// <summary>
         /// OverlayCanvasのalpha
         /// </summary>
-        CanvasGroup overlayCanvasGroup;
+        CanvasGroup OverlayCanvasGroup;
 
         /// <summary>
         /// 割り込み型のストーリーイベントを管理する
@@ -145,10 +156,6 @@ namespace Tactics
         /// 時間や天気を管理する
         /// </summary>
         NaturalEnvironmentController naturalEnvironmentController;
-
-        DebugController debugController;
-
-        private CameraMode previousCameraMode;
         #endregion
 
 
@@ -160,38 +167,36 @@ namespace Tactics
             IsGameRunning = false;
 
             // Get script in UnitContainer
-            unitsController = unitsObject.GetComponent<Character.UnitsController>();
-            unitsController.tilesController = tilesController;
-            unitsController.selectItemPanel = SelectItemPanel;
+            UnitsController = unitsObject.GetComponent<Character.UnitsController>();
+            UnitsController.tilesController = tilesController;
+            UnitsController.selectItemPanel = SelectItemPanel;
 
             // Victory conditions
-            victoryConditions = gameObject.GetComponent<VictoryConditions>();
-            victoryConditions.endGameAction += (arg => StartCoroutine(EndGame(arg)));
+            VictoryConditions = gameObject.GetComponent<VictoryConditions>();
+            VictoryConditions.endGameAction += (arg => StartCoroutine(EndGame(arg)));
             // TODO: victoryConditionsの仮の勝利条件
-            victoryConditions.mode = VictoryConditions.Mode.KILL_ALL;
+            VictoryConditions.mode = VictoryConditions.Mode.KILL_ALL;
 
             naturalEnvironmentController = GetComponent<NaturalEnvironmentController>();
 
-            gameManager = GameManager.Instance;
+            GameManager = GameManager.Instance;
+            Parameters = GameManager.GeneralParameter;
 
-            tacticsTablet.TilesController = tilesController;
+            preparePanel.TilesController = tilesController;
 
-            if (isStandaloneMode)
-                gameManager.LoadDebugData(DebugMapSceneName);
+            if (IsStandaloneMode)
+                GameManager.LoadDebugData(DebugMapSceneName);
 
-            tacticsTablet.TilesController = tilesController;
-            tacticsTablet.CameraController = cameraController;
+            tacticsTablet.tilesController = tilesController;
+            tacticsTablet.cameraController = cameraController;
             cameraController.TacticsTablet = tacticsTablet;
-            debugController = new DebugController(this);
-
-            loseResultCamera.Priority = 0;  
         }
 
         void Start()
         {
-            eventSceneController = gameManager.EventSceneController;
+            eventSceneController = GameManager.EventSceneController;
             sceneState = SceneState.PREPARE;
-            tacticsTablet.PreparePanel.startBattleButton.onClick.AddListener(() => StartGame());
+            preparePanel.startBattleButton.onClick.AddListener(() => StartGame());
             // Prepareが終わるまでここで待ってる
             StartCoroutine(Load());
 
@@ -203,6 +208,16 @@ namespace Tactics
             //var timeline = (float)gameTime.Hour + ((float)gameTime.Minute / 60);
             //timeController.SetTimeline(timeline);
 
+            DebugController = GameManager.debugController;
+            DebugController.disableTileWalls += DebugDisableTileWalls;
+            DebugController.getSquareInUnit += DebugGetSquareInUnit;
+            DebugController.endTactics += DebugEndTactics;
+            DebugController.showPrepare += DebugShowPrepare;
+            DebugController.tacticsAI += DebugAiControlling;
+            DebugController.unitInfo += DebugShowUnitInfo;
+            DebugController.rotation += DebugRotate;
+            
+
             unitListWindow.hideButtonAction += (() =>
             {
                 Time.timeScale = 1;
@@ -211,11 +226,15 @@ namespace Tactics
                 sceneState = SceneState.WAIT;
             });
 
-            overlayCanvasGroup = overlayCanvas.GetComponent<CanvasGroup>();
-            overlayCanvasGroup.alpha = 0;
+            OverlayCanvasGroup = overlayCanvas.GetComponent<CanvasGroup>();
+            OverlayCanvasGroup.alpha = 0;
             overlayCanvas.gameObject.SetActive(false);
 
-            unitsController.endAllUnitsActionHandler += CalledEndActiveUnitAction;
+            resultPanel.ReturnToPrepare = (() => ReturnToPrepare());
+
+            UnitsController.endAllUnitsActionHandler += CalledEndActiveUnitAction;
+
+            
         }
 
         /// <summary>
@@ -223,39 +242,33 @@ namespace Tactics
         /// </summary>
         private IEnumerator Load()
         {
-            PauseTactics = true;
-
             // Preparepanelからエンカウント内容を取得
-            while (tacticsTablet.ReachedEventArgs == null)
+            while (preparePanel.Encount == null)
                 yield return null;
-            var reachedEvent = tacticsTablet.ReachedEventArgs;
+            var encount = preparePanel.Encount;
             
             // encount時刻に設定する
-            naturalEnvironmentController.SetDateTime(reachedEvent.ReachedDateTime.Value);
-            Print($"Encounter at {reachedEvent.ReachedDateTime}");
+            naturalEnvironmentController.SetDateTime(encount.DateTime);
 
             var tilesCoroutine = StartCoroutine(tilesController.AsyncLoad());
-            // 敵ユニットを配置  
-            var unitsCoroutine = StartCoroutine(unitsController.SetUnitsAsEnemy(reachedEvent.Enemy.tileAndUnits));
+            // 敵ユニットを配置
+            var unitsCoroutine = StartCoroutine(UnitsController.SetUnitsAsEnemy(encount.Enemy.tileAndUnits));
             
             // CameraUserControllerが初期化されるまで待つ
             while (!cameraController.IsActivated)
                 yield return null;
 
-            tacticsTablet.ShowEmptyScreen(false);
-            cameraController.ChangeModeTacticsTablet();
-            
-            StartCoroutine(gameManager.FadeInOutCanvas.Hide(delay: 0.5f));
-
+            cameraController.ChangeModeStartTablet();
             // StandAloneModeではTabletの位置は初期位置でイベントはない
-            if (!isStandaloneMode)
+            if (!IsStandaloneMode)
             {
-                // Tabletの位置をStartPositionに対応したPlayerのTileに設定
-                tacticsTablet.SetStartPosition(reachedEvent.SpawnRequestData.StartPosition);
+                // Tabletの位置をUnitのスタート位置にする
+                tacticsTablet.SetStartPosition(encount.PlayerPositions.First());
+
                 // Eventがある場合は待つ
                 StartCoroutine(eventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.OnPrepare,
-                                      reachedEvent.Enemy.ID));
-                
+                                      encount.Enemy.encounmtSpawnID));
+                GameManager.NortifyCompleteToLoad(0.5f);
                 if (eventSceneController.IsEventWindowActive)
                 {
                     Print($"Event is active");
@@ -266,29 +279,22 @@ namespace Tactics
                 }
             }
 
-            gameManager.QuickSave("BeforeTactics", reachedEvent);
-            tacticsTablet.ShowPreparePanel();
-
-            // ここでPreparePanelからStartGameが呼ばれるまで待つ
-            gameManager.NortifyCompleteToLoad();
-            Print("Complete to set data on TacticsController. It's waiting to prepare");
+            // ここでPreparePanelのStartを待つ
             while (sceneState != SceneState.PREPARE_LOAD)
-            {
                 yield return null;
-            }
 
             // tabletを下げて非表示にする
             StartCoroutine( tacticsTablet.Hide());
 
             yield return unitsCoroutine;
-            unitsCoroutine = StartCoroutine( unitsController.SetUnits(tacticsTablet.PreparePanel.PlayerResults));
+            Print($"Try to set {preparePanel.PlayerResults.Count} units\n", string.Join("\n", preparePanel.PlayerResults));
+            unitsCoroutine = StartCoroutine( UnitsController.SetUnits(preparePanel.PlayerResults));
 
             yield return tilesCoroutine;
             yield return unitsCoroutine;
 
-            Print($"Complate to load {unitsController.UnitsList.Count} units");
-            print(string.Join(",", unitsController.UnitsList));
-            unitsController.CompleteLoad();
+            Print($"Complate to load units");
+            UnitsController.CompleteLoad();
 
             IEnumerator AttachSquareAndUnits()
             {
@@ -298,22 +304,22 @@ namespace Tactics
 
             yield return StartCoroutine(AttachSquareAndUnits());
 
-            isLoadCompleted = true;
+            LoadCompleted = true;
 
             sceneState = SceneState.INIT;
 
             StartCoroutine(FirstTurn());
         }
 
+        #endregion
+
         /// <summary>
-        /// Preapareパネルのゲーム開始ボタンが選択されたときPreparePanelから呼び出し
+        /// Preapareパネルのゲーム開始ボタンが選択されたとき呼び出し
         /// </summary>
         private void StartGame()
         {
             sceneState = SceneState.PREPARE_LOAD;
         }
-
-        #endregion
 
         // Update is called once per frame
         private void Update()
@@ -321,44 +327,44 @@ namespace Tactics
             if (sceneState == SceneState.PREPARE || sceneState == SceneState.PREPARE_LOAD || sceneState == SceneState.EVENT)
                 return;
 
-            if (!isLoadCompleted) return;
+            if (!LoadCompleted) return;
 
-            //if (PrepareDebugMode != DebugController.IsActive)
-            //{
-            //    PrepareDebugMode = DebugController.IsActive;
-            //    if (DebugController.IsActive)
-            //    {
-            //        // デバッグモード開始
-            //        sceneState = SceneState.DEBUG;
-            //        cameraController.enableCameraControlling = false;
-            //        pauseTactics = true;
-            //    }
-            //    else
-            //    {
-            //        // デバッグモード終了
-            //        sceneState = SceneState.WAIT;
-            //        cameraController.enableCameraControlling = true;
-            //        pauseTactics = false;
-            //    }
-            //}
-
-            if (gameManager.StartCanvasController.IsEnable != isSettingCanvasEnable)
+            if (PrepareDebugMode != DebugController.IsActive)
             {
-                if (gameManager.StartCanvasController.IsEnable)
+                PrepareDebugMode = DebugController.IsActive;
+                if (DebugController.IsActive)
+                {
+                    // デバッグモード開始
+                    sceneState = SceneState.DEBUG;
+                    cameraController.enableCameraControlling = false;
+                    pauseTactics = true;
+                }
+                else
+                {
+                    // デバッグモード終了
+                    sceneState = SceneState.WAIT;
+                    cameraController.enableCameraControlling = true;
+                    pauseTactics = false;
+                }
+            }
+
+            if (GameManager.StartCanvasController.IsEnable != IsSettingCanvasEnable)
+            {
+                if (GameManager.StartCanvasController.IsEnable)
                 {
                     // GameSettingCanvasが表示中になった
                     cameraController.enableCameraControlling = false;
                     UserController.enableCursor = true;
-                    PauseTactics = true;
-                    isSettingCanvasEnable = true;
+                    pauseTactics = true;
+                    IsSettingCanvasEnable = true;
                 }
                 else
                 {
                     // GameSettingCanvasが非表示になった
                     cameraController.enableCameraControlling = true;
                     UserController.enableCursor = false;
-                    PauseTactics = false;
-                    isSettingCanvasEnable = false;
+                    pauseTactics = false;
+                    IsSettingCanvasEnable = false;
                 }
                 return;
             }
@@ -392,10 +398,8 @@ namespace Tactics
                 }
             }
 
-            CheckToShowTacticsTablet();
-
             // Sceneがロックされている場合break
-            if (sceneState == SceneState.LOCK || sceneState == SceneState.TABLET)
+            if (sceneState == SceneState.LOCK)
                 return;
 
 
@@ -406,7 +410,7 @@ namespace Tactics
                 if (!ActiveUnit.isAiControlled)
                 {
                     // Playerのturnをspaceでスキップしようとしている
-                    unitsController.EndTurnFromPlayerControl();
+                    UnitsController.EndTurnFromPlayerControl();
                 }
                 else
                 {
@@ -424,29 +428,29 @@ namespace Tactics
                     !ActiveUnit.isAlreadyActioned)
                 {
 
-                    if (!unitsController.IsFocusMode)
+                    if (!UnitsController.IsFocusMode)
                     {
                         // フォーカスモードに入る
-                        unitsController.StartFocusMode();
+                        UnitsController.StartFocusMode();
                     }
                     else
                     {
                         // フォーカスモードから出る
-                        unitsController.EndFocusMode();
+                        UnitsController.EndFocusMode();
                     }
                 }
                 else if (UserController.KeyUseItem &&
                          ActiveUnit.CanUseGimmickObject && 
-                         !unitsController.IsFocusMode && 
+                         !UnitsController.IsFocusMode && 
                          !ActiveUnit.isAlreadyActioned)
                 {
                     // Gimmickを使用する
-                    unitsController.StartGimmickMode(ActiveUnit.GimmickObject);
+                    UnitsController.StartGimmickMode(ActiveUnit.GimmickObject);
                 }
-                else if (UserController.KeyUseItem && ActiveUnit.IsUsingGimmickObject && !unitsController.IsFocusMode)
+                else if (UserController.KeyUseItem && ActiveUnit.IsUsingGimmickObject && !UnitsController.IsFocusMode)
                 {
                     // Gimmickを使用中であるためこれから離れる動作
-                    unitsController.CancelGimmickMode();
+                    UnitsController.CancelGimmickMode();
                 }
             }
 
@@ -456,63 +460,21 @@ namespace Tactics
         }
 
         #region Function for control
-        TacticsTablet.OnTactics.WindowTabType windowTabType = TacticsTablet.OnTactics.WindowTabType.None;
-        /// <summary>
-        /// TacticsTabletを表示する
-        /// </summary>
-        private void CheckToShowTacticsTablet()
-        {
-            if (sceneState == SceneState.FINISHED || sceneState == SceneState.PREPARE || sceneState == SceneState.PREPARE_LOAD)
-                return;
-            if (tacticsTablet.IsAnimating)
-                return;
-
-            if (UserController.KeyShowInfo)
-                windowTabType = TacticsTablet.OnTactics.WindowTabType.Tactics;
-            else if (UserController.KeyCodeSetting)
-                windowTabType = TacticsTablet.OnTactics.WindowTabType.Setting;
-            else
-                return;
-            
-            // Tacticsモードでtabletを表示する
-            if (tacticsTablet.IsVisible)
-            {
-
-                // Tabletが表示中なので非表示にする
-                cameraController.DisableOverlayTacticsTablet();
-                overlayCanvas.gameObject.SetActive(true);
-                overlayCanvasGroup.DOFade(1, 0.5f);
-                StartCoroutine(tacticsTablet.Hide());
-                PauseTactics = false;
-                sceneState = SceneState.WAIT;
-            }
-            else
-            {
-                // Tabletが非表示なので表示する
-                PauseTactics = true;
-                overlayCanvasGroup.DOFade(0, 0.5f).OnComplete(() =>
-                {
-                    overlayCanvas.gameObject.SetActive(false);
-                });
-                var unitWatchingTablet = cameraController.ChangeModeOverlayTacticsTablet();
-                tacticsTablet.ShowOnTacticsPanel(unitWatchingTablet, windowTabType);
-                sceneState = SceneState.TABLET;
-            }
-        }
 
         /// <summary>
         /// 最初のターンを開始する
         /// </summary>
         private IEnumerator FirstTurn()
         {
-            if (!isStandaloneMode)
-            {
 
+            if (!IsStandaloneMode)
+            {
                 // Eventがある場合は待つ
                 StartCoroutine(eventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.BeforeBattle,
-                                                                        gameManager.ReachedEventArgs.Enemy.ID));
+                                                                        GameManager.Encounter.Enemy.encounmtSpawnID));
                 if (eventSceneController.IsEventWindowActive)
                 {
+                    Print($"FirstTurn UnitCount:{string.Join(",", UnitsController.UnitsList)}");
                     cameraController.enableCameraControlling = false;
                     sceneState = SceneState.EVENT;
                     while (eventSceneController.IsEventWindowActive)
@@ -520,16 +482,14 @@ namespace Tactics
                     cameraController.enableCameraControlling = true;
                 }
             }
-            Print("Start first turn");
-            PauseTactics = false;
 
-            var unitsCoroutine = StartCoroutine(unitsController.FirstTurn());
+            var unitsCoroutine = StartCoroutine(UnitsController.FirstTurn());
             tilesController.StartTurn(ActiveUnit);
             yield return unitsCoroutine;
 
             // 各種OverlayUIを有効化する
             overlayCanvas.gameObject.SetActive(true);
-            overlayCanvasGroup.DOFade(1, 0.5f);
+            OverlayCanvasGroup.DOFade(1, 0.5f);
 
             UserController.enableCursor = false;
 
@@ -539,7 +499,7 @@ namespace Tactics
 
             if (ActiveUnit.Attribute == UnitAttribute.PLAYER)
             {
-                orderOfActionController.SetOrder(unitsController.GetTurnList());
+                orderOfActionController.SetOrder(UnitsController.GetTurnList());
             }
         }
 
@@ -557,42 +517,42 @@ namespace Tactics
 
             sceneState = SceneState.LOCK;
 
-            var previousUnit = unitsController.activeUnit;
+            var previousUnit = UnitsController.activeUnit;
 
             //yield return StartCoroutine(UnitsController.WaitActionUnitAnimations());
 
             // 勝利条件の確認 (Kill, Reach等の勝利条件を確認)
-            victoryConditions.CheckGameState();
-            if (victoryConditions.sceneState != VictoryConditions.GameResult.Playing)
+            VictoryConditions.CheckGameState();
+            if (VictoryConditions.sceneState != VictoryConditions.GameResult.Playing)
             {
                 sceneState = SceneState.FINISHED;
                 // VictoryConditionsによってGameが終了したことを伝える
-                Print("===> Endgame", victoryConditions.sceneState);
+                Print("===> Endgame", VictoryConditions.sceneState);
                 yield break ;
             }
 
-            yield return StartCoroutine(unitsController.NextTurn());
+            yield return StartCoroutine(UnitsController.NextTurn());
 
-            if (unitsController.activeUnit == null)
+            if (UnitsController.activeUnit == null)
             {
                 // ActiveUnitがnullになり
                 // ターンが終了した
-                victoryConditions.CheckGameState();
+                VictoryConditions.CheckGameState();
                 sceneState = SceneState.FINISHED;
-                Print("===> Endgame2", victoryConditions.sceneState);
+                Print("===> Endgame2", VictoryConditions.sceneState);
                 yield break;
             }
 
             if (previousUnit.Attribute == UnitAttribute.ENEMY && 
-                unitsController.activeUnit.Attribute == UnitAttribute.PLAYER)
+                UnitsController.activeUnit.Attribute == UnitAttribute.PLAYER)
             {
                 // EnemyからPlayerへターンが移った
                 myInfoCanvasGroup.DOFade(1, 0.5f);
-                orderOfActionController.SetOrder(unitsController.GetTurnList());
+                orderOfActionController.SetOrder(UnitsController.GetTurnList());
 
 
             }else if (previousUnit.Attribute == UnitAttribute.PLAYER &&
-                      unitsController.activeUnit.Attribute == UnitAttribute.ENEMY)
+                      UnitsController.activeUnit.Attribute == UnitAttribute.ENEMY)
             {
                 // PlayerからEnemyにTurnが移った
                 if (previousUnit.isAiControlled)
@@ -606,17 +566,17 @@ namespace Tactics
             }
 
             // 勝利条件の確認 Turn経過等を見る
-            victoryConditions.CheckGameState();
-            if (victoryConditions.sceneState != VictoryConditions.GameResult.Playing)
+            VictoryConditions.CheckGameState();
+            if (VictoryConditions.sceneState != VictoryConditions.GameResult.Playing)
             {
                 // VictoryConditionsによってGameが終了したことを伝える
                 sceneState = SceneState.FINISHED;
-                Print("===> Endgame3", victoryConditions.sceneState);
+                Print("===> Endgame3", VictoryConditions.sceneState);
                 yield break;
             }
 
             // SquareControllerで現地点のSquareから出られるようにする
-            tilesController.StartTurn(unitsController.activeUnit);
+            tilesController.StartTurn(UnitsController.activeUnit);
 
             yield return new WaitForSeconds(1f);
             if (ActiveUnit.WorkState == WorkState.Gimmick)
@@ -667,13 +627,13 @@ namespace Tactics
                             {
                                 // 残弾数が0の場合は使用できない
                                 SelectItemPanel.ShakeItemHolder(newHolder);
-                                StartCoroutine(unitsController.focusModeUI.ShowBottomMessage("No ammo", newHolder.Data.Name, 3));
+                                StartCoroutine(UnitsController.focusModeUI.ShowBottomMessage("No ammo", newHolder.Data.Name, 3));
                                 return;
                             }
                             else
                             {
                                 StartCoroutine(ActiveUnit.itemController.SetItem(newHolder));
-                                unitsController.NortifyItemChanged();
+                                UnitsController.NortifyItemChanged();
                                 SelectItemPanel.SetItemToUse(newHolder);
                                 isSetNewItem = true;
                             }
@@ -683,7 +643,7 @@ namespace Tactics
             }
 
             if (isSetNewItem && ActiveUnit.WorkState == WorkState.Focus)
-                unitsController.StartFocusMode();
+                UnitsController.StartFocusMode();
         }
 
         /// <summary>
@@ -691,29 +651,129 @@ namespace Tactics
         /// </summary>
         internal bool IsStopped
         {
-            get => isStopped;
+            get => _isStopped;
             set
             {
-                if (isStopped == value) return;
-                isStopped = value;
+                if (_isStopped == value) return;
+                _isStopped = value;
                 if (value)
                 {
                     Physics.autoSimulation = false;
-                    unitsController.IsStopped = true;
+                    UnitsController.IsStopped = true;
                     
                 }
                 else
                 {
                     Physics.autoSimulation = true;
-                    unitsController.IsStopped = false;
+                    UnitsController.IsStopped = false;
                 }
 
             }
         }
-        private bool isStopped = false;
+        private bool _isStopped = false;
 
         #endregion
 
+        #region Debugmode
+        /// <summary>
+        /// コライダーの付いた壁とトリガーを無効化　プレイヤーが樹有に動ける
+        /// </summary>
+        /// <param name="attribute"></param>
+        private void DebugDisableTileWalls(List<string> command)
+        {
+            if (command.Count < 2)
+                return;
+            if (command[1].Equals("disable"))
+            {
+                tilesController.DisableAllTiles();
+                DebugController.AddText("All tiles are disabled");
+            }
+            else if (command[1].Equals("enable"))
+            {
+                var tile = tilesController.StartTurn(ActiveUnit, true);
+                if (tile == null)
+                    DebugController.AddText($"Unit {ActiveUnit.CurrentParameter.Data.Name} isn't in tile.");
+                else
+                    DebugController.AddText($"Enable tiles: {ActiveUnit.CurrentParameter.Data.Name} in {tile.id}");
+            }
+        }
+
+        /// <summary>
+        /// ユニットがどのTileに存在するかチェック
+        /// </summary>
+        private void DebugGetSquareInUnit(List<string> command)
+        {
+            var tile = ActiveUnit.tileCell;
+            if (tile == null)
+                DebugController.AddText($"Unit {ActiveUnit.CurrentParameter.Data.Name} isn't in tile.");
+            else
+                DebugController.AddText($"{ActiveUnit.CurrentParameter.Data.Name} is in {tile.id}");
+        }
+
+        /// <summary>
+        /// Tactics画面を終了する
+        /// </summary>
+        private void DebugEndTactics(List<string> command)
+        {
+            var state = VictoryConditions.GameResult.Playing;
+            if (command.Count >= 2 && command[1] == "win")
+                state = VictoryConditions.GameResult.Win;
+            else if (command.Count >= 2 && command[1] == "lose")
+                state = VictoryConditions.GameResult.Lose;
+            else
+                return;
+
+            StartCoroutine(EndGame(state));
+
+            StartCoroutine( DebugController.Hide(1.5f, () =>
+            {
+                UserController.enableCursor = true;
+            }));
+        }
+
+        /// <summary>
+        /// Tactics画面から準備画面に戻る
+        /// </summary>
+        private void DebugShowPrepare(List<string> command)
+        {
+            ReturnToPrepare();
+        }
+        
+        private void DebugAiControlling(UnitAttribute attribute, bool isControlled)
+        { 
+            UnitsController.EnableAIControlling(isControlled, attribute);
+        }
+
+        private void DebugShowUnitInfo(List<string> command)
+        {
+            if (ActiveUnit == null)
+            {
+                DebugController.AddText("Active Unit is null.");
+                return;
+            }
+            
+            DebugController.AddText(ActiveUnit.GetInfo());
+        }
+
+        private void DebugRotate(List<string> command)
+        {
+
+            //if (command.Count == 2)
+            //{
+            //    if (int.TryParse(command[1], out int degree))
+            //    {
+                    
+            //    }
+            //}
+            //else
+            //    debugController.AddText("Arguments error: rotation (degree)");
+        }
+
+        private void DebugKill(List<string> command)
+        {
+
+        }
+        #endregion
 
         #region Callled
 
@@ -735,12 +795,12 @@ namespace Tactics
         private void CalledEndActiveUnitAction(object sender, EndAllUnitsActionArgs allUnitsActionArgs)
         {
             // 勝利条件の確認 (Kill, Reach等の勝利条件を確認)
-            victoryConditions.CheckGameState();
-            if (victoryConditions.sceneState != VictoryConditions.GameResult.Playing)
+            VictoryConditions.CheckGameState();
+            if (VictoryConditions.sceneState != VictoryConditions.GameResult.Playing)
             {
                 sceneState = SceneState.FINISHED;
                 // VictoryConditionsによってGameが終了したことを伝える
-                Print("===> Endgame", victoryConditions.sceneState);
+                Print("===> Endgame", VictoryConditions.sceneState);
                 return;
             }
 
@@ -759,12 +819,12 @@ namespace Tactics
             // TODO 勝利時のアニメーション
 
             var easeDuration = 0.3f;
-            overlayCanvasGroup.DOFade(0, 0.3f).OnComplete(() =>
+            OverlayCanvasGroup.DOFade(0, 0.3f).OnComplete(() =>
             {
                 overlayCanvas.gameObject.SetActive(false);
             });
 
-            unitsController.EndGame();
+            UnitsController.EndGame();
 
             IsGameRunning = false;
             sceneState = SceneState.FINISHED;
@@ -772,10 +832,10 @@ namespace Tactics
             yield return new WaitForSeconds(easeDuration);
 
             // Tactics終了後イベント
-            if (!isStandaloneMode)
+            if (!IsStandaloneMode)
             {
                 StartCoroutine(eventSceneController.PlayEventIfNeeded(EventGraph.InOut.TriggerTiming.AfterBattle,
-                                        gameManager.ReachedEventArgs.Enemy.ID,
+                                        GameManager.Encounter.Enemy.encounmtSpawnID,
                                         state));
                 if (eventSceneController.IsEventWindowActive)
                 {
@@ -789,22 +849,22 @@ namespace Tactics
 
             var result = new UI.BattleResult();
             result.state = state;
-            result.units = unitsController.UnitsList.FindAll(u => u.Attribute == UnitAttribute.PLAYER).ConvertAll(u => u.CurrentParameter.Data);
+            result.units = UnitsController.UnitsList.FindAll(u => u.Attribute == UnitAttribute.PLAYER).ConvertAll(u => u.CurrentParameter.Data);
 
-            result.deadUnits = unitsController.OriginUnitsList.ToList().FindAll(u =>
+            result.deadUnits = UnitsController.OriginUnitsList.ToList().FindAll(u =>
             {
                 return u.Attribute == UnitAttribute.PLAYER && u.CurrentParameter.HealthPoint <= 0;
             }).ConvertAll(c => c.CurrentParameter.Data);
 
-            result.killedEnemies = unitsController.OriginUnitsList.ToList().FindAll(u =>
+            result.killedEnemies = UnitsController.OriginUnitsList.ToList().FindAll(u =>
             {
                 return u.Attribute == UnitAttribute.ENEMY && u.CurrentParameter.HealthPoint <= 0;
             }).ConvertAll(c => c.CurrentParameter.Data);
 
-            if (gameManager.ReachedEventArgs == null)
+            if (GameManager.Encounter == null)
                 result.baseExp = 0;
             else
-                result.baseExp = gameManager.ReachedEventArgs.Enemy.exp;
+                result.baseExp = GameManager.Encounter.Enemy.exp;
 
             result.numberOfTurn = TurnCount;
 
@@ -826,27 +886,47 @@ namespace Tactics
             {
                 if (!ActiveUnit.IsDead && ActiveUnit.Attribute == UnitAttribute.PLAYER)
                     SetTabletWinPosition(ActiveUnit);
-                else if (unitsController.UnitsList.TryFindFirst(u => u.Attribute == UnitAttribute.PLAYER, out var u))
+                else if (UnitsController.UnitsList.TryFindFirst(u => u.Attribute == UnitAttribute.PLAYER, out var u))
                     SetTabletWinPosition(u);
                 else
                     SetTabletLosePosition();
-                StartCoroutine(tacticsTablet.Show());
+
+                tacticsTablet.Show();
                 resultPanel.Show(result);
             }
             else if (state == VictoryConditions.GameResult.Lose)
             {
                 SetTabletLosePosition();
-                StartCoroutine(tacticsTablet.Show());
+                tacticsTablet.Show();
                 resultPanel.Show(result);
             }
         }
         #endregion
 
 
-        private void OnGUI()
+        /// <summary>
+        /// Tacticsを初期状態にし準備画面に戻る
+        /// </summary>
+        private void ReturnToPrepare()
         {
-            debugController?.Run();
+            sceneState = SceneState.PREPARE;
+            tilesController.Clear();
+            UnitsController.ClearUnitsController();
+            preparePanel.gameObject.SetActive(true);
+            resultPanel.Hide();
+            overlayCanvas.gameObject.SetActive(false);
+            tacticsTablet.Show();
+            StartCoroutine(Load());
+            preparePanel.CanvasGroup.DOFade(1, 0.5f);
+
+            StartCoroutine( DebugController.Hide(1, () =>
+            {
+                sceneState = SceneState.PREPARE;
+                UserController.enableCursor = true;
+                UserController.updateKeyInput = true;
+            }));
         }
+    
     }
 
     /// <summary>
@@ -883,11 +963,7 @@ namespace Tactics
         /// <summary>
         /// EventWindowが表示されている状態
         /// </summary>
-        EVENT,
-        /// <summary>
-        /// TacticsTabletが表示されている状態
-        /// </summary>
-        TABLET,
+        EVENT
     }
 
     /// <summary>
@@ -900,129 +976,4 @@ namespace Tactics
         NPC,
         ENEMY,
     }
-}
-
-
-/// <summary>
-/// Debug用の関数をまとめたクラス
-/// </summary>
-public class DebugController
-{
-    private MainMapController mainMapController;
-    private TacticsController tacticsController;
-    private GameManager gameManager;
-
-    public DebugController(TacticsController tacticsController)
-    {
-       this.tacticsController = tacticsController;
-        gameManager = GameManager.Instance;
-    }
-
-    public DebugController(MainMapController mainMapController)
-    {
-        this.mainMapController = mainMapController;
-        gameManager = GameManager.Instance;
-    }
-
-
-    /// <summary>
-    /// DebugFunctionが必要な場合はこれを呼び出す OnGUIで呼び出す
-    /// </summary>
-    public void Run()
-    {
-
-        if (gameManager.DebugLogManager == null)
-            return;
-        if (!gameManager.DebugLogManager.PopupEnabled)
-            return;
-        string command = Console.ReadLine();
-        if (command == null || command.Length == 0)
-            return;
-        command.ToLower();
-        var commandList = command.Split(' ').ToList();
-
-        if (tacticsController)
-        {
-            switch (commandList[0])
-            {
-                case "disable":
-                    DebugDisableTileWalls(commandList);
-                    break;
-                case "get":
-                    GetSquareInUnit(commandList);
-                    break;
-                case "ai":
-                    DebugAiControlling(tacticsController.ActiveUnit.Attribute, true);
-                    break;
-                case "showinfo":
-                    DebugShowUnitInfo(commandList);
-                    break;
-                case "kill":
-                    DebugKill(commandList);
-                    break;
-            }
-        }
-        else if (mainMapController)
-        {
-
-        }
-    }
-
-    #region Debug On Tactics
-    /// <summary>
-    /// コライダーの付いた壁とトリガーを無効化　プレイヤーが自由に動ける
-    /// </summary>
-    /// <param name="attribute"></param>
-    private void DebugDisableTileWalls(List<string> command)
-    {
-        if (command.Count < 2)
-            return;
-        if (command[1].Equals("disable"))
-        {
-            tacticsController.tilesController.DisableAllTiles();
-            Print("All tiles are disabled");
-        }
-        else if (command[1].Equals("enable"))
-        {
-            var tile = tacticsController.tilesController.StartTurn(tacticsController.ActiveUnit, true);
-            if (tile == null)
-                Print($"Unit {tacticsController.ActiveUnit.CurrentParameter.Data.Name} isn't in tile.");
-            else
-                Print($"Enable tiles: {tacticsController.ActiveUnit.CurrentParameter.Data.Name} in {tile.id}");
-        }
-    }
-
-    /// <summary>
-    /// ユニットがどのTileに存在するかチェック
-    /// </summary>
-    private void GetSquareInUnit(List<string> command)
-    {
-        var tile = tacticsController.ActiveUnit.tileCell;
-        if (tile == null)
-            Print($"Unit {tacticsController.ActiveUnit.CurrentParameter.Data.Name} isn't in tile.");
-        else
-            Print($"{tacticsController.ActiveUnit.CurrentParameter.Data.Name} is in {tile.id}");
-    }
-
-    private void DebugAiControlling(UnitAttribute attribute, bool isControlled)
-    {
-        tacticsController.unitsController.EnableAIControlling(isControlled, attribute);
-    }
-
-    private void DebugShowUnitInfo(List<string> command)
-    {
-        if (tacticsController.ActiveUnit == null)
-        {
-            Print("Active Unit is null.");
-            return;
-        }
-
-        Print(tacticsController.ActiveUnit.GetInfo());
-    }
-
-    private void DebugKill(List<string> command)
-    {
-
-    }
-    #endregion
 }

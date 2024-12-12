@@ -60,7 +60,7 @@ namespace EventGraph.Editor
                     window = (EventGraphWindow)EditorWindow.focusedWindow;
                 }
                 window.titleContent.text = name;
-                window.Path = path;
+                window.path = path;
                 window.Load();
 
                 Selection.activeObject = target;
@@ -110,14 +110,14 @@ namespace EventGraph.Editor
         public bool Expanded = true;
 
         [Header("Raw data in Node")]
-        public RawData Raw;
+        public RawData raw;
 
         /// <summary>
         /// NodeÇÃäÓñ{èÓïÒÇNodeDataÇ…à⁄Ç∑
         /// </summary>
         public NodeData()
         {
-            Raw = new RawData();
+            raw = new RawData();
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace EventGraph.Editor
         [Serializable]
         public class RawData
         {
-            [SerializeField] public List<SerializableKeyValuePair> KeyValuePairs = new List<SerializableKeyValuePair>();
+            [SerializeField] public List<SerializableKeyValuePair> keyValuePairs = new List<SerializableKeyValuePair>();
 
             /// <summary>
             /// PairsÇ©ÇÁkeyÇégÇ¡ÇƒvalueÇéÊìæÇ∑ÇÈ
@@ -135,7 +135,7 @@ namespace EventGraph.Editor
             /// <returns></returns>
             public bool GetFromPairs<T>(string key, out T value)
             {
-                var searched = KeyValuePairs.Find(p => p.key == key);
+                var searched = keyValuePairs.Find(p => p.key == key);
                 if (searched != null)
                 {
                     value = searched.GetValue<T>();
@@ -152,9 +152,9 @@ namespace EventGraph.Editor
             /// <param name="value"></param>
             public void SetToPairs(string key, object value)
             {
-                var searched = KeyValuePairs.Find(p => p.key == key);
+                var searched = keyValuePairs.Find(p => p.key == key);
                 if (searched == null)
-                    KeyValuePairs.Add(new SerializableKeyValuePair(key, value));
+                    keyValuePairs.Add(new SerializableKeyValuePair(key, value));
                 else
                     searched.SetValue(value);
             }
@@ -165,10 +165,10 @@ namespace EventGraph.Editor
             /// <param name="value"></param>
             public void SetDictionary(Dictionary<string, string> value)
             {
-                KeyValuePairs.Clear();
+                keyValuePairs.Clear();
                 value.ToList().ForEach(d =>
                 {
-                    KeyValuePairs.Add(new SerializableKeyValuePair(d.Key, d.Value));
+                    keyValuePairs.Add(new SerializableKeyValuePair(d.Key, d.Value));
                 });
             }
 
@@ -177,7 +177,7 @@ namespace EventGraph.Editor
             /// </summary>
             public int Count
             {
-                get => KeyValuePairs.Count;
+                get => keyValuePairs.Count;
             }
 
             /// <summary>

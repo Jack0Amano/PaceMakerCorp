@@ -6,8 +6,6 @@ using System;
 using static Utility;
 using UnityEditor;
 using System.Linq;
-using Unity.VisualScripting;
-using MainMap;
 
 /// <summary>
 /// データSave関係のを全てこの関数内で行う
@@ -15,6 +13,7 @@ using MainMap;
 public class DataSavingController
 {
 
+    public static readonly string AutoSaveDirectory = "AutoSave";
     public static readonly string SaveDataName = "SaveData";
 
     /// <summary>
@@ -31,12 +30,6 @@ public class DataSavingController
     /// セーブデータの諸々を入れる実データ
     /// </summary>
     internal SaveDataInfo SaveDataInfo { get => SaveData.DataInfo; }
-
-    /// <summary>
-    /// SaveDataの一時保存
-    /// </summary>
-    internal SaveData TempSaveData { private set; get; }
-
     /// <summary>
     /// データが既に読み込まれているか
     /// </summary>
@@ -50,17 +43,6 @@ public class DataSavingController
             var army = MyArmyData != null;
             return info && army;
         }
-    }
-
-    /// <summary>
-    /// File名からSaveDataのPathを作成する
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    public string MakeSavePath(string fileName)
-    {
-        var extension = SaveDataExtension.Remove(0, 1);
-        return Path.Combine(GameManager.SaveDataRootPath, fileName + extension);
     }
 
     /// <summary>
@@ -118,7 +100,8 @@ public class DataSavingController
     public string MakeNewGameData(string mapSceneID, GameDifficulty gameDifficulty)
     {
         Print($"Make new data of {mapSceneID}, difficulty: {gameDifficulty}");
-        var path = MakeSavePath(SaveDataName);
+        var extension = SaveDataExtension.Remove(0, 1);
+        var path = Path.Combine(GameManager.SaveDataRootPath, SaveDataName + extension);
         Directory.CreateDirectory(GameManager.SaveDataRootPath);
 
         SaveData = SaveData.LoadDefaultFromAsset(mapSceneID);
@@ -135,29 +118,15 @@ public class DataSavingController
     /// <summary>
     /// Pathに上書きセーブ
     /// </summary>
-    public void Save(string path, ReachedEventArgs reachedEventArgs=null)
+    public void Save(string path)
     {
         if (!Directory.Exists(GameManager.SaveDataRootPath))
             Directory.CreateDirectory(GameManager.SaveDataRootPath);
 
         SaveDataInfo.SaveTime = DateTime.Now;
         //SaveDataInfo.ID = Path.GetFileName(path);
-        var datetime = DateTime.Now;
-        SaveData.Save(path, true, reachedEventArgs);
-        // 処理にかかった時間
-        var span = DateTime.Now - datetime;
-        Print($"Save data to {path} in {span.TotalMilliseconds}ms {SaveData.DataInfo.GameTime}");
 
-        // セーブ数が上限を超えている場合は古いものを削除する
-        if (GameManager.Instance.StaticData.CommonSetting.SaveLimit > 0)
-        {
-            var infos = GetAllSavedData();
-            if (infos.Count > GameManager.Instance.StaticData.CommonSetting.SaveLimit)
-            {
-                infos.Sort((a, b) => DateTime.Compare(a.data.DataInfo.SaveTime, b.data.DataInfo.SaveTime));
-                RemoveSave(infos[0].path);
-            }
-        }
+        SaveData.Save(path);
     }
 
     /// <summary>
@@ -165,34 +134,19 @@ public class DataSavingController
     /// </summary>
     public string NewSave()
     {
-        var path = MakeSavePath(SaveDataName);
+        var extension = SaveDataExtension.Remove(0, 1);
+        var path = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(GameManager.SaveDataRootPath, SaveDataName + extension));
         Save(path);
         return path;
     }
 
     /// <summary>
-    /// TempSaveからSaveDataを作成して書き込む
+    /// オートセーブディレクトリに保存する
     /// </summary>
-    /// <returns></returns>
-    public bool SaveFromTemp(string fileName="")
+    public void AutoSave()
     {
-        if (TempSaveData == null)
-            return false;
-        if (fileName == "")
-            fileName = SaveDataName;
-        var path = MakeSavePath(fileName);
-        TempSaveData.Save(path);
-        return true;
-    }
-
-    /// <summary>
-    /// SaveDataをメモリ上に一時保存する
-    /// </summary>  
-    public void WriteAsTempData()
-    {
-        Print("Write as temp data at", GameManager.Instance.GameTime);
-        SaveData.WriteInfo();
-        TempSaveData = SaveData.DeepCopy();
+        var directory = Path.Combine(GameManager.SaveDataRootPath, AutoSaveDirectory);
+        Save(directory);
     }
 
     /// <summary>

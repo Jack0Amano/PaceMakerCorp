@@ -16,17 +16,11 @@ namespace EventGraph.Nodes
         /// <summary>
         /// Event‚ðŽ¯•Ê‚·‚éID
         /// </summary>
-        public string EventID { get => eventIdField.value; }
+        public string EventID { get => EventIdField.value; }
 
-        private readonly TextField eventIdField;
+        private readonly TextField EventIdField;
 
-        private readonly string eventIDKey = "EventID";
-        public const string REPEATABLE_KEY = "Repeatable";
-
-        /// <summary>
-        /// ŒJ‚è•Ô‚µ‰Â”\‚ÈEvent‚©‚ÌToggle
-        /// </summary>
-        private readonly Toggle repeatableToggle;
+        private readonly string EventIDKey = "EventID";
 
         public RootNode() : base()
         {
@@ -36,13 +30,9 @@ namespace EventGraph.Nodes
 
             capabilities -= Capabilities.Deletable;
 
-            eventIdField = new TextField();
-            eventIdField.style.minWidth = 100;
-            Add(eventIdField);
-
-            repeatableToggle = new Toggle("Repeatable");
-            repeatableToggle.value = false;
-            Add(repeatableToggle);
+            EventIdField = new TextField();
+            EventIdField.style.minWidth = 100;
+            Add(EventIdField);
 
             inputContainer.Remove(InputPort);
         }
@@ -56,25 +46,21 @@ namespace EventGraph.Nodes
         public override void Load(NodeData data)
         {
             base.Load(data);
-            if (data.Raw.GetFromPairs(eventIDKey, out string id))
-                eventIdField.value = id;
-            if (data.Raw.GetFromPairs(REPEATABLE_KEY, out float toggle))
-                repeatableToggle.value = toggle == 1;
+            if (data.raw.GetFromPairs(EventIDKey, out string id))
+                EventIdField.value = id;
         }
 
         public override NodeData Save()
         {
             var data = base.Save();
-            data.Raw.SetToPairs(eventIDKey, eventIdField.value);
-            data.Raw.SetToPairs(REPEATABLE_KEY, repeatableToggle.value ? 1f : 0f);
+            data.raw.SetToPairs(EventIDKey, EventIdField.value);
             return data;
         }
 
         public override void RegisterAnyValueChanged(Action<SampleNode> action)
         {
             base.RegisterAnyValueChanged(action);
-            eventIdField.RegisterValueChangedCallback(e => action?.Invoke(this));
-            repeatableToggle.RegisterValueChangedCallback(e => action?.Invoke(this));
+            EventIdField.RegisterValueChangedCallback(e => action?.Invoke(this));
         }
     }
 }

@@ -20,7 +20,7 @@ namespace MainMap
         [SerializeField] public MapLocation BaseLocation;
 
         [Tooltip("通常エンカウント時のTacticsSceneのID")]
-        [SerializeField] public string DefaultTacticsSceneID;
+        [SerializeField] public string tacticsSceneID;
 
         [Tooltip("都市の敵の存在を表示する Material")]
         [SerializeField] public MeshRenderer DetectSpawningMesh;
@@ -68,10 +68,10 @@ namespace MainMap
 
             if (SpawnSquadOnLocation == null)
                 return SafeColor * factor;
-            else if (SpawnSquadOnLocation.SpawnRequestData.Level > 3)
+            else if (SpawnSquadOnLocation.data.EnemyLevel > 3)
                 return DetectSpawningColors[3] * factor;
             else
-                return DetectSpawningColors[SpawnSquadOnLocation.SpawnRequestData.Level] * factor;
+                return DetectSpawningColors[SpawnSquadOnLocation.data.EnemyLevel] * factor;
             
         }
 
@@ -271,18 +271,47 @@ public class LocationParamter
     public Type type = Type.neutral;
 
     /// <summary>
+    /// 最後にRecoveryが発動したときの時間
+    /// </summary>
+    public DateTime PreviousRecoveryDate
+    {
+        get
+        {
+            if (_PreviousRecoveryDate != null)
+                return _PreviousRecoveryDate;
+            if (DateTime.TryParseExact(StrPreviousRecoveryDate,
+                                       "yyyy/MM/dd HH:mm:ss", 
+                                       null, System.Globalization.DateTimeStyles.None, out var time))
+            {
+                _PreviousRecoveryDate = time;
+                return time;
+            }
+            PrintWarning("Set current datetime from GameManager");
+            PreviousRecoveryDate = GameManager.Instance.GameTime;
+            return _PreviousRecoveryDate;
+        }
+        set
+        {
+            _PreviousRecoveryDate = value;
+            StrPreviousRecoveryDate = _PreviousRecoveryDate.ToString();
+
+        }
+    }
+    private DateTime _PreviousRecoveryDate;
+
+    /// <summary>
     /// Locationの名前
     /// </summary>
     public string Name
     {
         get
         {
-            if (name == null || name.Equals(id))
-                name = GameManager.Instance.Translation.SceneObjectsIni.ReadValue("Location", id, id);
-            return name;
+            if (_name == null || _name.Equals(id))
+                _name = GameManager.Instance.Translation.SceneObjectsIni.ReadValue("Location", id, id);
+            return _name;
         }
     }
-    private string name;
+    private string _name;
 
 
     public static LocationParamter Default()

@@ -1,8 +1,3 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <ui:GroupBox name="ApproachBox" style="height: 80px; padding-left: 0; margin-top: 2px;">
-        <ui:Label text="Location Object" display-tooltip-when-elided="true" style="font-size: 10px;" />
-        <uie:ObjectField type="UnityEngine.GameObject, UnityEngine.CoreModule" style="width: 144px; margin-left: 0; margin-right: 0; align-items: flex-start; justify-content: center;" />
-        <ui:Label text="Firend Unit ID" display-tooltip-when-elided="true" style="font-size: 10px; padding-top: 5px;" />
-        <ui:TextField picking-mode="Ignore" />
-    </ui:GroupBox>
-</ui:UXML>
+version https://git-lfs.github.com/spec/v1
+oid sha256:0927421fc06cfe196fdfe0210d2ac6a5462cc564fa819f496b253dc8b92953c0
+size 690

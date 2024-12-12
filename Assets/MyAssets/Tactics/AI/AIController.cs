@@ -36,6 +36,8 @@ namespace Tactics.AI
         /// </summary>
         public Action<FocusModeType> EndAIControllingAction;
 
+        private DebugController DebugController;
+
         private GeneralParameter parameters;
 
         private UnitController UnitController;
@@ -84,6 +86,7 @@ namespace Tactics.AI
         void Start()
         {
             // Set base properties
+            DebugController = GameManager.Instance.debugController;
             parameters = GameManager.Instance.GeneralParameter;
             UnitController = GetComponent<UnitController>();
         }

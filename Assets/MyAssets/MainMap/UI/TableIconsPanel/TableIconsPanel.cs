@@ -5,7 +5,6 @@ using System;
 using UnityEngine.EventSystems;
 using DG.Tweening;
 using static Utility;
-using Unity.VisualScripting;
 
 namespace MainMap.UI.TableIcons
 {
@@ -66,10 +65,10 @@ namespace MainMap.UI.TableIcons
 
         CanvasGroup CanvasGroup;
 
-        DG.Tweening.Sequence appearDisappearSequence;
+        Sequence appearDisappearSequence;
 
         RectTransform RectTransform;
-        
+
         Plane Plane;
 
         Vector3 PreviousMousePosition;
@@ -140,7 +139,6 @@ namespace MainMap.UI.TableIcons
             if (spawnMode)
                 newPanel.RaycastTarget = false;
             newPanel.IsSpawnMode = spawnMode;
-
             squadImages.Add(newPanel);
             return newPanel;
         }
@@ -153,19 +151,6 @@ namespace MainMap.UI.TableIcons
         {
             Destroy(squadImage);
             squadImages.Remove(squadImage);
-        }
-
-        /// <summary>
-        /// すべてのSquadImageをOverlayPanelから消去する
-        /// </summary>
-        public void ClearSquadImages()
-        {
-            foreach (var squadImage in squadImages)
-            {
-                if (squadImage.IsDestroyed() == false)
-                    Destroy(squadImage.gameObject);
-            }
-            squadImages.Clear();
         }
 
         /// <summary>
@@ -246,22 +231,8 @@ namespace MainMap.UI.TableIcons
             newPanel.ButtonEvents.onPointerExit += (e => { if (newPanel.IsEnable) OnPointerExitLocationAction?.Invoke(newPanel); });
             newPanel.MapLocation = location;
             newPanel.TableIconsPanel = this;
-            newPanel.gameObject.name = location.name;
             locationImages.Add(newPanel);
             return newPanel;
-        }
-
-        /// <summary>
-        /// MapLocationをOverlayPanelから消去する
-        /// </summary>
-        public void ClearLocationImages()
-        {
-            foreach (var locationImage in locationImages)
-            {
-                if (locationImage.IsDestroyed() == false)
-                    Destroy(locationImage.gameObject);
-            }
-            locationImages.Clear();
         }
 
         void OnPointerEnter(PointerEventData eventData)
@@ -280,7 +251,6 @@ namespace MainMap.UI.TableIcons
             });
         }
         #endregion
-
 
     }
 }

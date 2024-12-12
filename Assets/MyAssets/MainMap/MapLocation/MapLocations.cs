@@ -179,7 +179,7 @@ namespace MainMap
         /// <param name="mapSquad"></param>
         internal string GetRoadOrLocationID(MapSquad mapSquad)
         {
-            var locate = locations.Find(l => Vector3.Distance(mapSquad.transform.position, l.transform.position) < parameter.DistanceOfLocatedOnLocation);
+            var locate = locations.Find(l => Vector3.Distance(mapSquad.transform.position, l.transform.position) < parameter.DistanceOfLocatedOnSpawnPoint);
             if (locate != null)
             {
                 return locate.id;
@@ -213,9 +213,9 @@ namespace MainMap
             var locate = locations.Find(l => 
             { 
                 if (!mapSquad.IsOnTurnout)
-                    return Vector3.Distance(mapSquad.transform.localPosition, l.transform.localPosition) < parameter.DistanceOfLocatedOnLocation;
+                    return Vector3.Distance(mapSquad.transform.localPosition, l.transform.localPosition) < parameter.DistanceOfLocatedOnSpawnPoint;
                 else
-                    return Vector3.Distance(mapSquad.transform.localPosition, l.transform.localPosition) < parameter.NearDistanceOfLocatedOnLocation;
+                    return Vector3.Distance(mapSquad.transform.localPosition, l.transform.localPosition) < parameter.NearDistanceOfLocatedOnSpawnPoint;
             });
 
             return locate;

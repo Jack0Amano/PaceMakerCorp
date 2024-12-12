@@ -54,14 +54,14 @@ namespace EventGraph.Nodes
         public override NodeData Save()
         {
             var node = base.Save();
-            node.Raw.SetToPairs("rate", rateSlider.value);
+            node.raw.SetToPairs("rate", rateSlider.value);
             label.text = $"Rate: {rateSlider.value * 100}%";
             return node;
         }
 
         public override void Load(NodeData data)
         {
-            if (data.Raw.GetFromPairs(RATE_KEY, out float value))
+            if (data.raw.GetFromPairs(RATE_KEY, out float value))
                 rateSlider.value = value;
             label.text = $"Rate: {rateSlider.value * 100}%";
             base.Load(data);

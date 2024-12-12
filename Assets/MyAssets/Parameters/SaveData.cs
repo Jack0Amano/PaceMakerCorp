@@ -7,40 +7,22 @@ using static Utility;
 using UnityEditor;
 using Parameters.SpawnSquad;
 using UnityEditor.VersionControl;
-using MainMap;
 
 [Serializable]
 public class SaveData
 {
-    [Header("セーブデータの概要")]
     /// <summary>
     /// セーブデータの概要
     /// </summary>
     public SaveDataInfo DataInfo;
-    [Header("自軍のデータ")]
     /// <summary>
     /// 自軍のデータ
     /// </summary>
     public MyArmyData MyArmyData;
-    [Header("スポーンしている敵Squadの情報")]
     /// <summary>
     /// スポーンしている敵Squadの情報
     /// </summary>
-    public List<SpawnRequestArgs> SpawnData = new List<SpawnRequestArgs>();
-    [Header("エンカウント時のセーブデータ")]
-    [Tooltip("エンカウント時のセーブデータ")]
-    public ReachedEventArgs ReachedEventArgs;
-
-    /// <summary>
-    /// Tactics状態でセーブしたデータが存在するか
-    /// </summary>
-    public bool HasTacticsData
-    {
-        get
-        {
-            return ReachedEventArgs != null && ReachedEventArgs.Player.ID != "";
-        }
-    }
+    public List<SpawnSquadData> SpawnData = new List<SpawnSquadData>();
 
     #region Load
     /// <summary>
@@ -66,7 +48,7 @@ public class SaveData
     public static SaveData LoadDefaultFromAsset(string mapSceneID)
     {
         var path = Path.Combine(GameManager.StaticDataRootPath, mapSceneID, "Default", "Default.asset");
-        var assetData = AssetDatabase.LoadAssetAtPath<SaveDataContainer>(path).ObjectDeepCopy();
+        var assetData = AssetDatabase.LoadAssetAtPath<SaveDataContainer>(path).DeepCopy();
         var output = assetData.SaveData;
         output.DataInfo.shopLevel ??= new ShopLevel();
         output.DataInfo.Deserialize();
@@ -122,32 +104,22 @@ public class SaveData
     /// </summary>
     /// <param name="path"></param>
     /// <exception cref="Exception"></exception>
-    public void Save(string path, bool updateDataInfo=true, ReachedEventArgs reachedEventArg=null)
+    public void Save(string path)
     {
         this.CheckData();
-        ReachedEventArgs = reachedEventArg;
-        if (updateDataInfo)
-            WriteInfo();
+
+        // DataInfoにゲームの各種状態をセット
+        DataInfo.GameTime = GameManager.Instance.GameTime;
+        DataInfo.SaveTime = DateTime.Now;
+        DataInfo.UnitsCount = MyArmyData.Units.Count;
+        DataInfo.SquadsCount = MyArmyData.Squads.Count;
+        DataInfo.Serialize();
 
         var extension = Path.GetExtension(path).ToLower();
         if (extension == ".asset")
             SaveToAsset(path);
         else
             SaveToBinary(path);
-    }
-
-    /// <summary>
-    /// DataInfoに現在のゲームの状態をセットする
-    /// </summary>
-    public void WriteInfo()
-    {
-        // DataInfoにゲームの各種状態をセット
-        DataInfo.GameTime = GameManager.Instance.GameTime.DeepCopy();
-        Print(DataInfo.GameTime);
-        DataInfo.SaveTime = DateTime.Now;
-        DataInfo.UnitsCount = MyArmyData.Units.Count;
-        DataInfo.SquadsCount = MyArmyData.Squads.Count;
-        DataInfo.Serialize();
     }
 
     /// <summary>
@@ -216,6 +188,6 @@ public class SaveData
         DataInfo.CheckData();
         if (DataInfo == null)
             throw new Exception("DataInfo is null. It hasn't loaded yet.");
-        MyArmyData.CheckData();
+        MyArmyData.CheckData(DataInfo);
     }
 }

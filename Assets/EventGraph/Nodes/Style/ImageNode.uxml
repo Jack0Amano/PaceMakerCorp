@@ -1,8 +1,3 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <uie:EnumField value="Center" name="TypeEnum" style="width: 200px; max-width: 200px; min-width: 200px;" />
-    <uie:EnumField name="AlignEnum" style="width: 200px; max-width: 200px; min-width: 200px;" />
-    <ui:GroupBox name="ImageFieldBox" style="max-width: 200px; max-height: 25px; min-width: 200px; min-height: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
-        <uie:ObjectField type="UnityEngine.Texture2D, UnityEngine.CoreModule" allow-scene-objects="true" focusable="true" style="max-width: 200px; width: 200px; position: relative; flex-direction: column;" />
-    </ui:GroupBox>
-    <ui:GroupBox name="ImageBox" style="max-width: 200px; max-height: 200px; min-width: 200px; min-height: 0; width: 200px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
-</ui:UXML>
+version https://git-lfs.github.com/spec/v1
+oid sha256:6828fe82d8b84d4b3ddb5424db2f56c69951550a6d0dd3c59117b0335e1852e0
+size 1071

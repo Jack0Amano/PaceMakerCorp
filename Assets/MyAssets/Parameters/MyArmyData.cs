@@ -39,9 +39,22 @@ public class MyArmyData
     public List<OwnItem> OwnItems = new List<OwnItem>();
 
     /// <summary>
-    /// Defaultの装備を所持していない場合は追加する
+    /// 部隊員の操作を行う全ての関数群
     /// </summary>
-    public readonly OwnItem DefaultWeapon;
+    public ArmyController ArmyController
+    {
+        get => armyController ??= new ArmyController(this);
+    }
+    [NonSerialized] private ArmyController armyController;
+
+    /// <summary>
+    /// 装備の操作を行う全ての関数群
+    /// </summary>
+    public ItemController ItemController
+    {
+        get => itemController ??= new ItemController(this);
+    }
+    [NonSerialized] private ItemController itemController;
 
     /// <summary>
     /// 現在所持している全てのUnitData
@@ -69,13 +82,29 @@ public class MyArmyData
     /// <summary>
     /// セーブデータの整合性を確認する
     /// </summary>  
-    public void CheckData()
+    public void CheckData(SaveDataInfo saveDataInfo)
     {
-        AddDefaultItemIfNeeded();
-        SetDefaultItemToAllUnitIfNeeded();
+        if( ItemController.FindItemFromID(saveDataInfo.DefaultWeaponID, out ItemData defaultItemData))
+        {
+            ItemController.AddDefaultItemIfNeeded(defaultItemData);
+            ItemController.SetDefaultItemToAllUnitIfNeeded(defaultItemData);
+        }
+    }
+}
+
+// *****************************************************************************
+/// <summary>
+/// 部隊の操作関数群 部隊のデータ操作は全てこの関数から行う
+/// </summary>
+public class ArmyController
+{
+    private MyArmyData data;
+
+    internal ArmyController(MyArmyData data)
+    {
+        this.data = data;
     }
 
-    #region 部隊のコントロール関数
     /// <summary>
     /// Squadを作成する
     /// </summary>
@@ -84,9 +113,9 @@ public class MyArmyData
     {
         var squad = new Squad(commander);
         squad.supplyLevel = squad.MaxSupply;
-        FreeCommanders.Remove(commander);
+        data.FreeCommanders.Remove(commander);
 
-        Squads.Add(squad);
+        data.Squads.Add(squad);
 
         return squad;
     }
@@ -97,11 +126,11 @@ public class MyArmyData
     /// <param name="squad"></param>
     public void DeleteSquad(Squad squad)
     {
-        if (!Squads.Remove(squad))
+        if (!data.Squads.Remove(squad))
             PrintError($"UnitParameter.DeleteSquad: {squad} is not exist in List<Squad>");
 
-        FreeUnits.AddRange(squad.member);
-        FreeCommanders.Add(squad.commander);
+        data.FreeUnits.AddRange(squad.member);
+        data.FreeCommanders.Add(squad.commander);
     }
 
     /// <summary>
@@ -109,9 +138,9 @@ public class MyArmyData
     /// </summary>
     /// <param name="unit"></param>
     /// <param name="squad"></param>
-    public void AddUnitToSquad(UnitData unit, Squad squad)
+    public void AddUnit(UnitData unit, Squad squad)
     {
-        if (!FreeUnits.Remove(unit))
+        if (!data.FreeUnits.Remove(unit))
             PrintError($"UnitParameter.AddUnit: {unit} is not exist in freeUnits");
         squad.member.Add(unit);
         squad.supplyLevel = squad.MaxSupply;
@@ -126,7 +155,7 @@ public class MyArmyData
     {
         if (!squad.member.Remove(unit))
             PrintError($"UnitParameter.RemoveUnit: {unit} is not exist in member of {squad}");
-        FreeUnits.Add(unit);
+        data.FreeUnits.Add(unit);
         squad.supplyLevel = squad.MaxSupply;
     }
 
@@ -140,72 +169,50 @@ public class MyArmyData
     {
         if (!squad.member.Remove(from))
             PrintError($"UnitParameter.RemoveUnit: ({from}) is not exist in member of ({squad})");
-        FreeUnits.Add(from);
-        if (!FreeUnits.Remove(to))
+        data.FreeUnits.Add(from);
+        if (!data.FreeUnits.Remove(to))
             PrintError($"UnitParameter.AddUnit: ({to}) is not exist in freeUnits");
         squad.member.Add(to);
         squad.supplyLevel = squad.MaxSupply;
     }
+}
 
-    /// <summary>
-    /// Unitを追加する
-    /// </summary>
-    public void AddNewUnit(UnitData unit)
+// *****************************************************************************
+/// <summary>
+/// 装備の操作関数　装備品のデータ操作はすべてここの関数から行う
+/// </summary>
+public class ItemController
+{
+
+    readonly private MyArmyData myArmyData;
+
+    public readonly OwnItem DefaultWeapon;
+
+    internal ItemController(MyArmyData data)
     {
-        if (unit.IsCommander)
-        {
-            unit.CommanderParameter ??= GameManager.Instance.SceneParameter.DefaultCommanderData;
-            FreeCommanders.Add(unit);
-        }
-        else
-            FreeUnits.Add(unit);
+        this.myArmyData = data;
     }
 
-    /// <summary>
-    /// IDからSquadを検索
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="squad"></param>
-    public bool GetSquadFromID(string id, out Squad squad)
-    {
-        squad = Squads.Find(s => s.ID.Equals(id));
-        return squad != null;
-    }
-
-    /// <summary>
-    /// IDから保持しているUnitを検索
-    /// </summary>
-    public bool GetUnitFromID(string id, out UnitData unit)
-    {
-        unit = Units.Find(u => u.ID.Equals(id));
-        if (unit == null)
-            PrintError($"UnitParameter.GetUnitFromID: {id} is not exist in Units");
-        return unit != null;
-    }
-    #endregion
-
-    #region Itemのコントロール関数
     /// <summary>
     /// Defaultの装備を所持していない場合は追加する
     /// </summary>
-    public void AddDefaultItemIfNeeded()
+    public void AddDefaultItemIfNeeded(ItemData defaultItemData)
     {
-        var defaultWeapon = GameManager.Instance.SceneParameter.DefaultWeapon;
-        if (!GetOwnItemWithID(defaultWeapon.ID, out OwnItem own))
+        if (!FindOwnItemWithID(defaultItemData.ID, out OwnItem own))
         {
-            AddItem(defaultWeapon);
+            AddItem(defaultItemData);
         }
     }
 
     /// <summary>
     /// 装備がない場合はDefaultの装備を追加する
     /// </summary>  
-    public void SetDefaultItemToAllUnitIfNeeded()
+    public void SetDefaultItemToAllUnitIfNeeded(ItemData defaultItemData)
     {
         // Unitの装備がない場合はDefaultの装備を追加する
-        Units.ForEach(u =>
+        myArmyData.Units.ForEach(u =>
         {
-            u.SetDefaultItemIfNeeded(this);
+            u.SetDefaultItemIfNeeded(defaultItemData, myArmyData);
         });
     }
 
@@ -218,13 +225,13 @@ public class MyArmyData
         {
             if (items == null)
             {
-                var myArmyData = GameManager.Instance.DataSavingController.MyArmyData;
+                var equipController = GameManager.Instance.DataSavingController.MyArmyData.ItemController;
                 Print(GameManager.Instance.StaticData.AllItemsList);
                 items = GameManager.Instance.StaticData.AllItemsList.Items.ConvertAll(i =>
                 {
                     var itemData = new ItemInList();
                     itemData.data = i;
-                    if (myArmyData.GetOwnItemWithID(i.ID, out OwnItem own))
+                    if (equipController.FindOwnItemWithID(i.ID, out OwnItem own))
                         itemData.own = own;
                     return itemData;
                 });
@@ -239,9 +246,9 @@ public class MyArmyData
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public bool GetOwnItemWithID(string id, out OwnItem own)
+    public bool FindOwnItemWithID(string id, out OwnItem own)
     {
-        own = OwnItems.Find(e => e.Id == id);
+        own = myArmyData.OwnItems.Find(e => e.Id == id);
         return own != null;
     }
 
@@ -251,7 +258,7 @@ public class MyArmyData
     /// <param name="id"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    public bool GetItemFromID(string id, out ItemData item)
+    public bool FindItemFromID(string id, out ItemData item)
     {
         if (GameManager.Instance.StaticData == null)
         {
@@ -259,7 +266,7 @@ public class MyArmyData
             item = null;
             return false;
         }
-
+            
         item = GameManager.Instance.StaticData.AllItemsList.GetItemFromID(id);
         return item != null;
     }
@@ -269,16 +276,16 @@ public class MyArmyData
     /// </summary>
     public void UpdateItemsIfNeeded(string equipmentID)
     {
-        var item = GameManager.Instance.DataSavingController.MyArmyData.ItemSet.Find(i => i.data.ID.Equals(equipmentID));
+        var item = GameManager.Instance.DataSavingController.MyArmyData.ItemController.ItemSet.Find(i => i.data.ID.Equals(equipmentID));
         if (item == null)
         {
             PrintError($"UpdateItemsIfNeeded: No exist equepment {equipmentID} is updated.");
             return;
         }
+            
 
-
-        var myArmyData = GameManager.Instance.DataSavingController.MyArmyData;
-        if (myArmyData.GetOwnItemWithID(item.data.ID, out OwnItem own))
+        var equipController = GameManager.Instance.DataSavingController.MyArmyData.ItemController;
+        if (equipController.FindOwnItemWithID(item.data.ID, out OwnItem own))
         {
             // OwnEquipmentとEquipmentDataの紐付けを新たに行う; 新たなOwnEquipmentが追加された
             item.own = own;
@@ -297,14 +304,14 @@ public class MyArmyData
     /// <param name="itemID"></param>
     public void AddItem(string itemID)
     {
-        if (GetOwnItemWithID(itemID, out OwnItem own))
+        if (FindOwnItemWithID(itemID, out OwnItem own))
         {
             //own.freeCount += count;
             //own.totalCount += count;
         }
         else
         {
-            OwnItems.Add(new OwnItem(itemID));
+            myArmyData.OwnItems.Add(new OwnItem(itemID));
 
             // GameControllerのUI共通のEquipmentDataとOwnEquipmentの紐付けClassをアップデートする
             UpdateItemsIfNeeded(itemID);
@@ -317,14 +324,14 @@ public class MyArmyData
     /// <param name="itemID"></param>
     public void AddItem(ItemData itemData)
     {
-        if (GetOwnItemWithID(itemData.ID, out OwnItem own))
+        if (FindOwnItemWithID(itemData.ID, out OwnItem own))
         {
             //own.freeCount += count;
             //own.totalCount += count;
         }
         else
         {
-            OwnItems.Add(new OwnItem(itemData));
+            myArmyData.OwnItems.Add(new OwnItem(itemData));
 
             // GameControllerのUI共通のEquipmentDataとOwnEquipmentの紐付けClassをアップデートする
             UpdateItemsIfNeeded(itemData.ID);
@@ -338,7 +345,7 @@ public class MyArmyData
     /// <param name="count"></param>
     public void DeleteItem(string equipmentID, int count)
     {
-        if (GetOwnItemWithID(equipmentID, out OwnItem own))
+        if (FindOwnItemWithID(equipmentID, out OwnItem own))
         {
             if (own.FreeCount >= count)
             {
@@ -349,7 +356,7 @@ public class MyArmyData
                 {
                     Print(equipmentID, own.TotalCount);
                     // 所持数が0になった
-                    OwnItems.Remove(own);
+                    myArmyData.OwnItems.Remove(own);
                     // GameControllerのUI共通のEquipmentDataとOwnEquipmentの紐付けClassをアップデートする
                     UpdateItemsIfNeeded(equipmentID);
                 }
@@ -374,7 +381,7 @@ public class MyArmyData
     public void SetItem(UnitData unit, int index, string equipmentID)
     {
         // 装備したいEquipmentがOwnEquipmentに存在するか
-        if (!GetOwnItemWithID(equipmentID, out OwnItem equipment))
+        if (!FindOwnItemWithID(equipmentID, out OwnItem equipment))
         {
             PrintError($"SetEquipment: {equipmentID} is not exist in OwnEquipments");
             return;
@@ -404,15 +411,9 @@ public class MyArmyData
     /// <param name="itemID"></param>
     public void SetItem(UnitData unit, ItemHolder holder, string itemID)
     {
-        if (!GetOwnItemWithID(itemID, out OwnItem item))
+        if (!FindOwnItemWithID(itemID, out OwnItem item))
         {
             PrintError($"SetEquipment: Try to set item {unit}, but {itemID} is not exist in OwnEquipments");
-            return;
-        }
-
-        if (holder == null)
-        {
-            PrintError($"SetEquipment: Try to set item {unit}, but holder is null");
             return;
         }
 
@@ -432,7 +433,7 @@ public class MyArmyData
         var holder = unit.MyItems[index];
         var itemID = holder.Id;
         // Holderに入っている装備をOwnEquipmentの所持数に戻す
-        if (GetOwnItemWithID(holder.Id, out OwnItem own))
+        if (FindOwnItemWithID(holder.Id, out OwnItem own))
         {
             // freeCountを1増加
             //own.freeCount++;
@@ -475,7 +476,6 @@ public class MyArmyData
 
         return itemID;
     }
-    #endregion
 }
 
 /// <summary>

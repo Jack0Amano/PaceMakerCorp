@@ -10,8 +10,6 @@ using EventGraph;
 using StoryGraph.Editor;
 using EventGraph.InOut;
 using static Tactics.VictoryConditions;
-using MainMap;
-using Parameters.SpawnSquad;
 
 namespace EventScene
 {
@@ -49,25 +47,16 @@ namespace EventScene
         /// <summary>
         /// 敵がスポーンするRequest SpawnするID
         /// </summary>
-        public EventHandler<SpawnRequestArgs> SpawnSquadRequest;
+        public Action<string> SpawnSquadRequest;
         /// <summary>
         /// MapLocations上で動くEventのRequest
         /// </summary>
         public Action<LocationEventOutput> LocationEventRequest;
-        /// <summary>
-        /// AddUnitEventOutputを受け取るRequest
-        /// </summary>
-        public Action<AddUnitEventOutput> AddUnitRequest;
-
-        /// <summary>
-        /// MainMapScene
-        /// </summary>
-        public MainMapScene MainMapScene;
 
         /// <summary>
         /// 直前に実行したイベント
         /// </summary>
-        StoryGraph.Nodes.EventNode previousEvent;
+        StoryGraph.Nodes.EventNode PreviousEvent;
         /// <summary>
         /// 現在時点でのEventInputを取得する
         /// </summary>
@@ -78,13 +67,10 @@ namespace EventScene
                 return new EventInput()
                 {
                     DateTime = GameManager.Instance.GameTime,
-                    ItemsID = GameManager.Instance.DataSavingController.MyArmyData.OwnItems.ConvertAll(e => e.Id),
-                    MainMapController = MainMapScene.MainMapController
+                    ItemsID = GameManager.Instance.DataSavingController.MyArmyData.OwnItems.ConvertAll(e => e.Id)
                 };
             }
         }
-
-        private readonly List<StoryGraph.Nodes.EventNode> runableEvents = new List<StoryGraph.Nodes.EventNode>();
 
         private void Awake()
         {
@@ -139,14 +125,12 @@ namespace EventScene
                     story.SetSaveData(new List<SaveDataInfo.StorySaveData.EventSaveData>());
                 }
             }
-
-            previousEvent = null;
         }
 
         /// <summary>
         /// <c>DataSavingController.saveDataInfo.storiesSaveData</c>に現在のストーリーの進行度合いを書き込む
         /// </summary>
-        private void SaveStories()
+        public void SaveStories()
         {
             DataSavingController.SaveDataInfo.storiesSaveData.Clear();
             AllStories.ForEach(s =>
@@ -178,7 +162,7 @@ namespace EventScene
                 yield return null;
 
             // 前回の実行がないためStoriesから探す
-            runableEvents.Clear();
+            var runableEvents = new List<StoryGraph.Nodes.EventNode>();
             AllStories.ForEach(s =>
             {
                 runableEvents.AddRange(s.GetRunableNodes()); ;
@@ -187,22 +171,17 @@ namespace EventScene
             runableEvents.Sort((a, b) => a.SortValue - b.SortValue);
 
             //　直線に実行したEventがある場合は優先してこれを実行
-            if (previousEvent != null && !previousEvent.IsCompleted)
+            if (PreviousEvent != null && !PreviousEvent.IsCompleted)
             {
-                runableEvents.Remove(previousEvent);
-                runableEvents.Insert(0, previousEvent);
+                runableEvents.Remove(PreviousEvent);
+                runableEvents.Insert(0, PreviousEvent);
             }
-
-            if (runableEvents.Count == 0)
-            {
-                yield break;
-            }   
 
             var eventOut = new List<EventOutput>();
             var eventInput = EventInput;
-            eventInput.TriggerTiming = triggerTiming;
-            eventInput.EncountSpawnID = encountSpawnID;
-            eventInput.GameResultTrigger = resultType;
+            eventInput.triggerTiming = triggerTiming;
+            eventInput.encountSpawnID = encountSpawnID;
+            eventInput.gameResultTrigger = resultType;
             foreach (var e in runableEvents)
             {
                 //e.SaveData
@@ -210,7 +189,7 @@ namespace EventScene
                 eventOut = e.ExecuteEventView(eventInput);
                 if (eventOut.Count > 0)
                 {
-                    previousEvent = e;
+                    PreviousEvent = e;
                     break;
                 }
             }
@@ -219,12 +198,12 @@ namespace EventScene
                 BeginEventHandler?.Invoke(this, new EventArgs());
                 var previousTimer = GameManager.Instance.IsTimerStopping;
                 GameManager.Instance.IsTimerStopping = true;
+                Print($"BeginEvent: Timing.{triggerTiming}");
                 // 各EventOutの内容をControllerに振り分ける
                 UserController.enableCursor = true;
                 yield return StartCoroutine(PlayEventOutputs(eventOut));
                 GameManager.Instance.IsTimerStopping = previousTimer;
                 EndEventHandler?.Invoke(this, new EventArgs());
-                SaveStories();
             }
         }
 
@@ -251,10 +230,10 @@ namespace EventScene
             if (eventNode.IsCompleted)
             {
                 PrintWarning($"{eventNode} is Already completed");
-                previousEvent = null;
+                PreviousEvent = null;
                 yield break ;
             }
-            previousEvent = eventNode;
+            PreviousEvent = eventNode;
             var eventOut = eventNode.ExecuteEventView(input);
             if (eventOut.Count > 0)
             {
@@ -276,26 +255,20 @@ namespace EventScene
             {
                 if (eventOut is MessageEventOutput message)
                 {
-                    print("MessageEventOutput");
                     yield return StartCoroutine(messageEvent.ShowMessageEvent(message));
 
                 }
                 else if (eventOut is SpawnEventOutput spawn)
                 {
-                    print("SpawnEventOutput");
-                    SpawnSquadRequest?.Invoke(this,new SpawnRequestArgs( spawn, GameManager.Instance.GameTime));
+                    SpawnSquadRequest?.Invoke(spawn.squadID);
                     
                 }
                 else if (eventOut is LocationEventOutput location)
                 {
 
                 }
-                else if (eventOut is AddUnitEventOutput addUnit)
-                {
-                    print("AddUnitEventOutput");
-                    AddUnitRequest?.Invoke(addUnit);
-                }
             }
+            print("PlayEventOutput");
 
             // メッセージタイプの返答がされたため
             if (messageEvent.ResponseButtonIndex != -1)
@@ -304,7 +277,7 @@ namespace EventScene
                 var input = EventInput;
                 input.StartAtID = events.FindLast(e => e is MessageEventOutput).NodeID;
                 input.SelectTriggerIndex = messageEvent.ResponseButtonIndex;
-                yield return StartCoroutine( Play(previousEvent, input));
+                yield return StartCoroutine( Play(PreviousEvent, input));
                 yield break;
             }
             else

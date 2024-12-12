@@ -121,10 +121,10 @@ namespace EventGraph.Nodes
             });
             textFields.Clear();
 
-            for(var i=0; i<data.Raw.Count; i++)
+            for(var i=0; i<data.raw.Count; i++)
             {
-                data.Raw.GetFromPairs($"{TextArrayFromKey}{i}", out string fromValue);
-                if ( data.Raw.GetFromPairs($"{TextArrayKey}{i}", out string value))
+                data.raw.GetFromPairs($"{TextArrayFromKey}{i}", out string fromValue);
+                if ( data.raw.GetFromPairs($"{TextArrayKey}{i}", out string value))
                 {
                     var fields = MakeTextField();
                     fields.main.value = value;
@@ -146,7 +146,7 @@ namespace EventGraph.Nodes
             var mainDic = Texts.Select((text, index) => new { index, text }).ToDictionary(n => $"{TextArrayKey}{n.index}", n => n.text.main);
             fromDic.ToList().ForEach(f => mainDic[f.Key] = f.Value);
 
-            node.Raw.SetDictionary(mainDic);
+            node.raw.SetDictionary(mainDic);
 
             return node;
         }
