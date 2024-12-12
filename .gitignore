@@ -22,6 +22,8 @@ Assets/AmplifyImpostors
 Assets/MobilePostProcess
 Packages/com.singularitygroup.hotreload
 
+.git_lab/
+
 # Visual Studio cache directory
 .vs/
 
